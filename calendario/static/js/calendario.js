@@ -2,7 +2,7 @@
  * Calendário Dark — JS
  */
 
-let eventoAtualId = null;
+if (typeof eventoAtualId === 'undefined') var eventoAtualId = null;
 
 // ================================
 // INIT
