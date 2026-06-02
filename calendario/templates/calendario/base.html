@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Agenda{% endblock %} - Sistema de Calendário</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/calendario.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    {% block conteudo %}{% endblock %}
+
+    <script src="{% static 'js/calendario.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
