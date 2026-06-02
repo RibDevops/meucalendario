@@ -1,0 +1,56 @@
+6-06-02 19:50:22,405: 
+2026-06-02 19:50:22,405:   File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 181, in handle_uncaught_exception
+2026-06-02 19:50:22,405:     return debug.technical_500_response(request, *exc_info)
+2026-06-02 19:50:22,406:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,406: 
+2026-06-02 19:50:22,406:   File "/usr/local/lib/python3.12/site-packages/django/views/debug.py", line 69, in technical_500_response
+2026-06-02 19:50:22,406:     html = reporter.get_traceback_html()
+2026-06-02 19:50:22,407:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,407: 
+2026-06-02 19:50:22,407:   File "/usr/local/lib/python3.12/site-packages/django/views/debug.py", line 428, in get_traceback_html
+2026-06-02 19:50:22,407:     c = Context(self.get_traceback_data(), use_l10n=False)
+2026-06-02 19:50:22,407:                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,408: 
+2026-06-02 19:50:22,408:   File "/usr/local/lib/python3.12/site-packages/django/views/debug.py", line 411, in get_traceback_data
+2026-06-02 19:50:22,408:     c["raising_view_name"] = get_caller(self.request)
+2026-06-02 19:50:22,408:                              ^^^^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,408: 
+2026-06-02 19:50:22,409:   File "/usr/local/lib/python3.12/site-packages/django/views/debug.py", line 102, in get_caller
+2026-06-02 19:50:22,409:     resolver_match = resolve(request.path)
+2026-06-02 19:50:22,409:                      ^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,409: 
+2026-06-02 19:50:22,409:   File "/usr/local/lib/python3.12/site-packages/django/urls/base.py", line 24, in resolve
+2026-06-02 19:50:22,409:     return get_resolver(urlconf).resolve(path)
+2026-06-02 19:50:22,410:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,410: 
+2026-06-02 19:50:22,410:   File "/usr/local/lib/python3.12/site-packages/django/urls/resolvers.py", line 686, in resolve
+2026-06-02 19:50:22,410:     for pattern in self.url_patterns:
+2026-06-02 19:50:22,410:                    ^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,410: 
+2026-06-02 19:50:22,411:   File "/usr/local/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+2026-06-02 19:50:22,411:     res = instance.__dict__[self.name] = self.func(instance)
+2026-06-02 19:50:22,411:                                          ^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,411: 
+2026-06-02 19:50:22,412:   File "/usr/local/lib/python3.12/site-packages/django/urls/resolvers.py", line 738, in url_patterns
+2026-06-02 19:50:22,412:     patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+2026-06-02 19:50:22,412:                        ^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,412: 
+2026-06-02 19:50:22,412:   File "/usr/local/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+2026-06-02 19:50:22,412:     res = instance.__dict__[self.name] = self.func(instance)
+2026-06-02 19:50:22,413:                                          ^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,413: 
+2026-06-02 19:50:22,413:   File "/usr/local/lib/python3.12/site-packages/django/urls/resolvers.py", line 731, in urlconf_module
+2026-06-02 19:50:22,413:     return import_module(self.urlconf_name)
+2026-06-02 19:50:22,413:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-06-02 19:50:22,413: 
+2026-06-02 19:50:22,414:   File "/home/meucalendario/calendario/calendario/urls.py", line 2, in <module>
+2026-06-02 19:50:22,414:     from . import views
+2026-06-02 19:50:22,414: 
+2026-06-02 19:50:22,414:   File "/home/meucalendario/calendario/calendario/views.py", line 11, in <module>
+2026-06-02 19:50:22,414:     from .models import Evento
+2026-06-02 19:50:22,414: 
+2026-06-02 19:50:22,415:   File "/home/meucalendario/calendario/calendario/models.py", line 13, in <module>
+2026-06-02 19:50:22,415:     class Evento(models.Model):
+2026-06-02 19:50:22,415: 
+2026-06-02 19:50:22,415:   File "/usr/local/lib/python3.12/site-packages/django/db/models/base.py", line 134, in __new__
+2026-06-02 19:50:22,415:     raise RuntimeError(
