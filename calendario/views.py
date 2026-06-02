@@ -59,6 +59,14 @@ def calendario_view(request):
     # Dias da semana
     dias_semana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
+    # Nome abreviado do dia selecionado
+    dias_semana_abrev_full = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.']
+    # weekday() retorna 0=seg, mas isoweekday() 1=seg; usamos .weekday() com offset
+    # data_selecionada.isoweekday(): 1=seg...7=dom, precisamos mapear para índice 0=dom
+    iso_wd = data_selecionada.isoweekday()  # 1=seg ... 7=dom
+    idx_semana = iso_wd % 7  # 0=dom, 1=seg, ..., 6=sab
+    dias_semana_abrev = dias_semana_abrev_full[idx_semana]
+
     # Eventos do mês
     primeiro_dia = date(ano, mes, 1)
     ultimo_dia = date(ano, mes, calendar.monthrange(ano, mes)[1])
@@ -110,6 +118,7 @@ def calendario_view(request):
         'dia': data_selecionada.day,
         'data_selecionada': data_selecionada,
         'dias_semana': dias_semana,
+        'dias_semana_abrev': dias_semana_abrev,
         'dias_mes': dias_mes,
         'eventos_por_dia': eventos_por_dia,
         'horarios': horarios,

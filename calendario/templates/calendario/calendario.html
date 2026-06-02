@@ -5,822 +5,290 @@
 {% block conteudo %}
 {% load static calendario_extras %}
 
-<div class="calendario-wrapper">
-    <div class="calendario-container">
-        
-        <!-- COLUNA ESQUERDA - Informações -->
-        <div class="coluna-info">
-            <div class="info-header">
-                <div class="avatar">KG</div>
-                <h3>Kauan Guedes</h3>
-            </div>
-            
-            <h1 class="info-titulo">Diagnóstico Estratégico de IA para Empresas</h1>
-            
-            <div class="info-descricao">
-                <p>Se você tem uma empresa e quer entender onde IA pode gerar ganho real no seu negócio, essa sessão é para você. Em 20 minutos vamos analisar sua operação e identificar oportunidades práticas para:</p>
-                <ul>
-                    <li>automatizar processos</li>
-                    <li>reduzir tempo operacional</li>
-                    <li>melhorar atendimento</li>
-                    <li>aumentar vendas</li>
-                </ul>
-                <p class="sem-enrolacao">Sem enrolação. Escolha um horário ao lado para agendarmos sua análise.</p>
-            </div>
-            
-            <div class="info-meta">
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span>20 minutos</span>
-                </div>
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"/>
-                    </svg>
-                    <span>Google Meet</span>
-                </div>
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
-                    <span>{{ nome_mes }} {{ ano }}</span>
-                </div>
-            </div>
+<div class="cal-wrapper">
+  <div class="cal-container">
 
-            <!-- Estatísticas -->
-            <div class="info-stats">
-                <div class="stat-item">
-                    <span class="stat-numero" id="total-eventos">0</span>
-                    <span class="stat-label">Eventos</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-numero" id="eventos-mes">0</span>
-                    <span class="stat-label">Este mês</span>
-                </div>
-            </div>
-
-            <button class="btn-novo-evento" onclick="abrirModalCriar()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Novo Evento
-            </button>
-        </div>
-
-        <!-- COLUNA CENTRAL - Calendário -->
-        <div class="coluna-calendario">
-            <div class="calendario-header">
-                <div class="mes-ano">
-                    <span class="mes-nome">{{ nome_mes }}</span>
-                    <span class="ano-numero">{{ ano }}</span>
-                </div>
-                <div class="navegacao-mes">
-                    <a href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}&dia={{ dia }}" class="btn-nav" title="Mês anterior">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>
-                    </a>
-                    <a href="?ano={{ ano_posterior }}&mes={{ mes_posterior }}&dia={{ dia }}" class="btn-nav" title="Próximo mês">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-
-            <div class="dias-semana">
-                {% for dia_semana in dias_semana %}
-                    <div class="dia-semana-label">{{ dia_semana }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="dias-grid">
-                {% for semana in dias_mes %}
-                    {% for dia_celula in semana %}
-                        {% if dia_celula == 0 %}
-                            <div class="dia-celula dia-vazio"></div>
-                        {% else %}
-                            {% with eventos_dia_celula=eventos_por_dia|get_item:dia_celula %}
-                            <div 
-                                class="dia-celula 
-                                    {% if dia_celula == dia and data_selecionada.month == mes %}dia-selecionado{% endif %}
-                                    {% if ano == hoje.year and mes == hoje.month and dia_celula == hoje.day %}dia-hoje{% endif %}
-                                    {% if eventos_dia_celula %}dia-com-evento{% endif %}"
-                                onclick="selecionarDia({{ ano }}, {{ mes }}, {{ dia_celula }})"
-                                data-dia="{{ dia_celula }}"
-                                data-mes="{{ mes }}"
-                                data-ano="{{ ano }}"
-                            >
-                                <span class="dia-numero">{{ dia_celula }}</span>
-                                {% if eventos_dia_celula %}
-                                    <div class="eventos-indicadores">
-                                        {% for evento in eventos_dia_celula %}
-                                            <span class="evento-ponto" style="background-color: {{ evento.cor }};"></span>
-                                        {% endfor %}
-                                    </div>
-                                    {% if eventos_dia_celula|length > 0 %}
-                                        <div class="eventos-tooltip">
-                                            {% for evento in eventos_dia_celula %}
-                                                <div class="tooltip-evento">
-                                                    <span class="tooltip-cor" style="background-color: {{ evento.cor }};"></span>
-                                                    <span class="tooltip-titulo">{{ evento.titulo }}</span>
-                                                    <span class="tooltip-hora">{{ evento.hora_inicio_formatada }}</span>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                            {% endwith %}
-                        {% endif %}
-                    {% endfor %}
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- COLUNA DIREITA - Horários -->
-        <div class="coluna-horarios">
-            <div class="horarios-header">
-                <div class="data-selecionada">
-                    <span class="dia-nome">{{ data_selecionada|date:'l' }}</span>
-                    <span class="dia-numero-grande">{{ data_selecionada.day }}</span>
-                </div>
-                <div class="visualizacao-toggle">
-                    <button class="btn-toggle active" data-view="12h" onclick="toggleView('12h')">12h</button>
-                    <button class="btn-toggle" data-view="24h" onclick="toggleView('24h')">24h</button>
-                </div>
-            </div>
-
-            <div class="horarios-lista" id="horarios-lista">
-                {% if eventos_dia %}
-                    <div class="secao-titulo">Eventos Agendados</div>
-                    {% for evento in eventos_dia %}
-                        <div class="evento-card" 
-                             style="border-left-color: {{ evento.cor }};"
-                             onclick="abrirModalEditar({{ evento.id }})"
-                             data-id="{{ evento.id }}">
-                            <div class="evento-card-header">
-                                <span class="evento-hora">{{ evento.hora_inicio_formatada }} - {{ evento.hora_fim_formatada }}</span>
-                                <span class="evento-tipo">{{ evento.get_tipo_display }}</span>
-                            </div>
-                            <div class="evento-card-titulo">{{ evento.titulo }}</div>
-                            {% if evento.local %}
-                                <div class="evento-card-local">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                        <circle cx="12" cy="10" r="3"></circle>
-                                    </svg>
-                                    {{ evento.local }}
-                                </div>
-                            {% endif %}
-                            {% if evento.responsavel %}
-                                <div class="evento-card-responsavel">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                    {{ evento.responsavel }}
-                                </div>
-                            {% endif %}
-                            <div class="evento-card-actions">
-                                <button class="btn-card-action editar" onclick="event.stopPropagation(); abrirModalEditar({{ evento.id }})" title="Editar">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </button>
-                                <button class="btn-card-action excluir" onclick="event.stopPropagation(); abrirModalExcluir({{ evento.id }})" title="Excluir">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
-                <div class="secao-titulo">Horários Disponíveis</div>
-                {% for horario in horarios %}
-                    {% if not horario.ocupado %}
-                        <div class="horario-slot" 
-                             onclick="abrirModalQuickAdd('{{ data_selecionada|date:'Y-m-d' }}', '{{ horario.hora }}')">
-                            <span class="horario-hora">{{ horario.hora }}</span>
-                            <span class="horario-label">Agendar</span>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-
-                {% if not eventos_dia %}
-                    <div class="sem-eventos">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <p>Nenhum evento para este dia</p>
-                        <p class="sub">Clique em um horário para agendar</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- ================= MODAIS ================= -->
-
-<!-- Overlay -->
-<div class="modal-overlay" id="modal-overlay" onclick="fecharTodosModais()"></div>
-
-<!-- MODAL: Criar Evento -->
-<div class="modal" id="modal-criar">
-    <div class="modal-header">
-        <h2>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Novo Evento
+    <!-- COLUNA ESQUERDA: CALENDÁRIO -->
+    <div class="cal-left">
+      <div class="cal-header">
+        <h2 class="cal-titulo">
+          {{ nome_mes|lower }} <span>{{ ano }}</span>
         </h2>
-        <button class="modal-fechar" onclick="fecharModal('modal-criar')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
+        <div class="cal-nav">
+          <a href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}&dia=1" class="cal-nav-btn" title="Mês anterior">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </a>
+          <a href="?ano={{ ano_posterior }}&mes={{ mes_posterior }}&dia=1" class="cal-nav-btn" title="Próximo mês">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Cabeçalho dias da semana -->
+      <div class="cal-semana-header">
+        {% for d in dias_semana %}
+          <div class="cal-semana-label">{{ d }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Grid de dias -->
+      <div class="cal-grid">
+        {% for semana in dias_mes %}
+          <div class="cal-semana">
+            {% for dia_celula in semana %}
+              {% if dia_celula == 0 %}
+                <div class="cal-dia vazio"></div>
+              {% else %}
+                {% with tem_evento=eventos_por_dia|get_item:dia_celula %}
+                <div class="cal-dia
+                  {% if dia_celula == dia and data_selecionada.month == mes %} selecionado{% endif %}
+                  {% if ano == hoje.year and mes == hoje.month and dia_celula == hoje.day %} hoje{% endif %}
+                  {% if tem_evento %} com-evento{% endif %}"
+                  onclick="selecionarDia({{ ano }}, {{ mes }}, {{ dia_celula }})"
+                  title="{{ dia_celula }}/{{ mes }}/{{ ano }}"
+                >
+                  {{ dia_celula }}
+                </div>
+                {% endwith %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
     </div>
-    <form id="form-criar" class="modal-form">
-        {% csrf_token %}
-        <div class="form-grid">
-            <div class="form-group full">
-                <label for="criar-titulo">Título *</label>
-                <input type="text" id="criar-titulo" name="titulo" class="form-input" placeholder="Ex: Auditoria de IA para Empresas" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-data">Data *</label>
-                <input type="date" id="criar-data" name="data" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-hora">Hora *</label>
-                <input type="time" id="criar-hora" name="hora" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-duracao">Duração (min) *</label>
-                <input type="number" id="criar-duracao" name="duracao_minutos" class="form-input" value="30" min="5" step="5" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-tipo">Tipo</label>
-                <select id="criar-tipo" name="tipo" class="form-select">
-                    <option value="reuniao">Reunião</option>
-                    <option value="auditoria">Auditoria</option>
-                    <option value="consultoria">Consultoria</option>
-                    <option value="treinamento">Treinamento</option>
-                    <option value="outro">Outro</option>
-                </select>
-            </div>
-            
-            <div class="form-group full">
-                <label for="criar-descricao">Descrição</label>
-                <textarea id="criar-descricao" name="descricao" class="form-textarea" rows="3" placeholder="Descrição do evento..."></textarea>
-            </div>
-            
-            <div class="form-group full">
-                <label for="criar-local">Local ou Link</label>
-                <input type="text" id="criar-local" name="local" class="form-input" placeholder="Ex: Google Meet ou Sala 101">
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-responsavel">Responsável</label>
-                <input type="text" id="criar-responsavel" name="responsavel" class="form-input" placeholder="Nome do responsável">
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-email">E-mail</label>
-                <input type="email" id="criar-email" name="email" class="form-input" placeholder="email@exemplo.com">
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-telefone">Telefone</label>
-                <input type="text" id="criar-telefone" name="telefone" class="form-input" placeholder="(00) 00000-0000">
-            </div>
-            
-            <div class="form-group">
-                <label for="criar-cor">Cor</label>
-                <input type="color" id="criar-cor" name="cor" class="form-color" value="#111827">
-            </div>
-            
-            <div class="form-group full">
-                <label for="criar-notas">Notas Internas</label>
-                <textarea id="criar-notas" name="notas" class="form-textarea" rows="2" placeholder="Notas internas..."></textarea>
-            </div>
+
+    <!-- DIVISOR -->
+    <div class="cal-divider"></div>
+
+    <!-- COLUNA DIREITA: EVENTOS DO DIA -->
+    <div class="cal-right">
+      <div class="cal-right-header">
+        <div class="cal-dia-titulo">
+          {{ dias_semana_abrev }} <span>{{ data_selecionada.day|stringformat:"02d" }}</span>
         </div>
-        
-        <div class="modal-footer">
-            <button type="button" class="btn-cancelar" onclick="fecharModal('modal-criar')">Cancelar</button>
-            <button type="submit" class="btn-salvar">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                Salvar Evento
-            </button>
-        </div>
-    </form>
+        <button class="btn-add" onclick="abrirModalCriar('{{ data_selecionada|date:'Y-m-d' }}', '08:00')" title="Novo evento">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </div>
+
+      <div class="eventos-lista">
+        {% if eventos_dia %}
+          {% for evento in eventos_dia %}
+            <div class="evento-item" onclick="abrirModalDetalhe({{ evento.id }})">
+              <div class="evento-cor-dot" style="background: {{ evento.cor }};"></div>
+              <div class="evento-hora">{{ evento.hora_inicio_formatada }}</div>
+              <div class="evento-info">
+                <div class="evento-titulo-item">{{ evento.titulo }}</div>
+                {% if evento.local %}
+                  <div class="evento-local-item">{{ evento.local }}</div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="eventos-vazio">
+            Nenhum evento<br>neste dia
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- MODAL: Editar Evento -->
-<div class="modal" id="modal-editar">
-    <div class="modal-header">
-        <h2>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-            </svg>
-            Editar Evento
-        </h2>
-        <button class="modal-fechar" onclick="fecharModal('modal-editar')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-    </div>
-    <form id="form-editar" class="modal-form">
-        {% csrf_token %}
-        <input type="hidden" id="editar-id" name="id">
-        <div class="form-grid">
-            <div class="form-group full">
-                <label for="editar-titulo">Título *</label>
-                <input type="text" id="editar-titulo" name="titulo" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-data">Data *</label>
-                <input type="date" id="editar-data" name="data" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-hora">Hora *</label>
-                <input type="time" id="editar-hora" name="hora" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-duracao">Duração (min) *</label>
-                <input type="number" id="editar-duracao" name="duracao_minutos" class="form-input" min="5" step="5" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-tipo">Tipo</label>
-                <select id="editar-tipo" name="tipo" class="form-select">
-                    <option value="reuniao">Reunião</option>
-                    <option value="auditoria">Auditoria</option>
-                    <option value="consultoria">Consultoria</option>
-                    <option value="treinamento">Treinamento</option>
-                    <option value="outro">Outro</option>
-                </select>
-            </div>
-            
-            <div class="form-group full">
-                <label for="editar-descricao">Descrição</label>
-                <textarea id="editar-descricao" name="descricao" class="form-textarea" rows="3"></textarea>
-            </div>
-            
-            <div class="form-group full">
-                <label for="editar-local">Local ou Link</label>
-                <input type="text" id="editar-local" name="local" class="form-input">
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-responsavel">Responsável</label>
-                <input type="text" id="editar-responsavel" name="responsavel" class="form-input">
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-email">E-mail</label>
-                <input type="email" id="editar-email" name="email" class="form-input">
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-telefone">Telefone</label>
-                <input type="text" id="editar-telefone" name="telefone" class="form-input">
-            </div>
-            
-            <div class="form-group">
-                <label for="editar-cor">Cor</label>
-                <input type="color" id="editar-cor" name="cor" class="form-color" value="#111827">
-            </div>
-            
-            <div class="form-group full">
-                <label for="editar-notas">Notas Internas</label>
-                <textarea id="editar-notas" name="notas" class="form-textarea" rows="2"></textarea>
-            </div>
-        </div>
-        
-        <div class="modal-footer">
-            <button type="button" class="btn-excluir" onclick="excluirEventoAtual()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-                Excluir
-            </button>
-            <div class="footer-right">
-                <button type="button" class="btn-cancelar" onclick="fecharModal('modal-editar')">Cancelar</button>
-                <button type="submit" class="btn-salvar">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Atualizar
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
+<!-- ================================
+     OVERLAY GERAL
+================================ -->
+<div class="modal-overlay" id="modal-overlay" onclick="fecharPorOverlay(event)">
 
-<!-- MODAL: Quick Add (Evento Rápido) -->
-<div class="modal modal-small" id="modal-quick-add">
+  <!-- MODAL: CRIAR EVENTO -->
+  <div class="modal" id="modal-criar">
     <div class="modal-header">
-        <h2>Agendar Horário</h2>
-        <button class="modal-fechar" onclick="fecharModal('modal-quick-add')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
+      <h3 class="modal-titulo">Novo evento</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-criar')">×</button>
     </div>
-    <form id="form-quick-add" class="modal-form">
-        {% csrf_token %}
-        <input type="hidden" id="quick-data" name="data">
-        <input type="hidden" id="quick-hora" name="hora">
-        <div class="quick-info">
-            <div class="quick-data-display" id="quick-data-display"></div>
-        </div>
-        <div class="form-group full">
-            <label for="quick-titulo">Título *</label>
-            <input type="text" id="quick-titulo" name="titulo" class="form-input" placeholder="Título do evento" required autofocus>
-        </div>
-        <div class="form-group">
-            <label for="quick-duracao">Duração (min)</label>
-            <input type="number" id="quick-duracao" name="duracao_minutos" class="form-input" value="30" min="5" step="5">
-        </div>
-        <div class="form-group">
-            <label for="quick-tipo">Tipo</label>
-            <select id="quick-tipo" name="tipo" class="form-select">
+    <div class="modal-body">
+      <form id="form-criar">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="form-grupo">
+            <label class="form-label">Título *</label>
+            <input type="text" name="titulo" id="criar-titulo" class="form-input" placeholder="Ex: Reunião de planejamento" required>
+          </div>
+
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Data *</label>
+              <input type="date" name="data" id="criar-data" class="form-input" required>
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Hora *</label>
+              <input type="time" name="hora" id="criar-hora" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Duração (min)</label>
+              <input type="number" name="duracao_minutos" id="criar-duracao" class="form-input" value="30" min="5" step="5">
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Tipo</label>
+              <select name="tipo" id="criar-tipo" class="form-select">
                 <option value="reuniao">Reunião</option>
                 <option value="auditoria">Auditoria</option>
                 <option value="consultoria">Consultoria</option>
                 <option value="treinamento">Treinamento</option>
                 <option value="outro">Outro</option>
-            </select>
-        </div>
-        <div class="form-group full">
-            <label for="quick-local">Local</label>
-            <input type="text" id="quick-local" name="local" class="form-input" placeholder="Local ou Link">
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-cancelar" onclick="fecharModal('modal-quick-add')">Cancelar</button>
-            <button type="submit" class="btn-salvar">Agendar</button>
-        </div>
-    </form>
-</div>
+              </select>
+            </div>
+          </div>
 
-<!-- MODAL: Excluir Confirmação -->
-<div class="modal modal-small" id="modal-excluir">
+          <div class="form-grupo">
+            <label class="form-label">Local / Link</label>
+            <input type="text" name="local" id="criar-local" class="form-input" placeholder="Ex: Google Meet ou Sala 101">
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Responsável</label>
+            <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Nome do responsável">
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Descrição</label>
+            <textarea name="descricao" id="criar-descricao" class="form-textarea" placeholder="Detalhes do evento..."></textarea>
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Cor</label>
+            <div class="form-color-wrapper">
+              <input type="color" name="cor" id="criar-cor" class="form-color" value="#6366f1">
+              <span class="form-color-label">Cor do evento</span>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario" onclick="fecharModal('modal-criar')">Cancelar</button>
+      <button class="btn btn-primario" onclick="document.getElementById('form-criar').dispatchEvent(new Event('submit'))">Criar evento</button>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHE DO EVENTO -->
+  <div class="modal" id="modal-detalhe">
     <div class="modal-header">
-        <h2>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-            Excluir Evento
-        </h2>
-        <button class="modal-fechar" onclick="fecharModal('modal-excluir')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
+      <h3 class="modal-titulo" id="detalhe-titulo">—</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-detalhe')">×</button>
+    </div>
+    <div class="modal-detalhe-body" id="detalhe-corpo">
+      <!-- preenchido via JS -->
+    </div>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario btn-editar" onclick="abrirModalEditarDoDetalhe()">Editar</button>
+      <button class="btn btn-perigo btn-editar" onclick="abrirModalExcluirDoDetalhe()">Excluir</button>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR EVENTO -->
+  <div class="modal" id="modal-editar">
+    <div class="modal-header">
+      <h3 class="modal-titulo">Editar evento</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-editar')">×</button>
     </div>
     <div class="modal-body">
-        <p class="confirmacao-texto">Tem certeza que deseja excluir o evento <strong id="excluir-titulo"></strong>?</p>
-        <p class="confirmacao-sub">Esta ação não pode ser desfeita.</p>
+      <form id="form-editar">
+        <input type="hidden" name="id" id="editar-id">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="form-grupo">
+            <label class="form-label">Título *</label>
+            <input type="text" name="titulo" id="editar-titulo" class="form-input" required>
+          </div>
+
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Data *</label>
+              <input type="date" name="data" id="editar-data" class="form-input" required>
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Hora *</label>
+              <input type="time" name="hora" id="editar-hora" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Duração (min)</label>
+              <input type="number" name="duracao_minutos" id="editar-duracao" class="form-input" min="5" step="5">
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Tipo</label>
+              <select name="tipo" id="editar-tipo" class="form-select">
+                <option value="reuniao">Reunião</option>
+                <option value="auditoria">Auditoria</option>
+                <option value="consultoria">Consultoria</option>
+                <option value="treinamento">Treinamento</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Local / Link</label>
+            <input type="text" name="local" id="editar-local" class="form-input" placeholder="Ex: Google Meet">
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Responsável</label>
+            <input type="text" name="responsavel" id="editar-responsavel" class="form-input">
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Descrição</label>
+            <textarea name="descricao" id="editar-descricao" class="form-textarea"></textarea>
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Cor</label>
+            <div class="form-color-wrapper">
+              <input type="color" name="cor" id="editar-cor" class="form-color" value="#6366f1">
+              <span class="form-color-label">Cor do evento</span>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="btn-cancelar" onclick="fecharModal('modal-excluir')">Cancelar</button>
-        <button type="button" class="btn-confirmar-excluir" onclick="confirmarExclusao()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-            Sim, Excluir
-        </button>
+    <div class="modal-acoes">
+      <button class="btn btn-secundario" onclick="fecharModal('modal-editar')">Cancelar</button>
+      <button class="btn btn-primario" onclick="document.getElementById('form-editar').dispatchEvent(new Event('submit'))">Salvar</button>
     </div>
+  </div>
+
+  <!-- MODAL: EXCLUIR EVENTO -->
+  <div class="modal" id="modal-excluir">
+    <div class="modal-header">
+      <h3 class="modal-titulo">Excluir evento</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-excluir')">×</button>
+    </div>
+    <div class="modal-excluir-body">
+      <p>Tem certeza que deseja excluir<br><strong id="excluir-titulo">este evento</strong>?<br><br>Esta ação não pode ser desfeita.</p>
+      <div class="modal-acoes-excluir">
+        <button class="btn btn-secundario" onclick="fecharModal('modal-excluir')">Cancelar</button>
+        <button class="btn btn-perigo" onclick="confirmarExclusao()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- Toast Notification -->
+<!-- Toast container -->
 <div class="toast-container" id="toast-container"></div>
 
-{% endblock %}
-
-{% block scripts %}
+<!-- URLs para o JS -->
 <script>
-    // Variáveis globais
-    let eventoAtualId = null;
-    const mesAtual = {{ mes }};
-    const anoAtual = {{ ano }};
-    const diaAtual = {{ dia }};
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-
-    // URLs
-    const URL_CRIAR = '{% url "evento_criar" %}';
-    const URL_EDITAR_BASE = '{% url "evento_editar" 0 %}';
-    const URL_EXCLUIR_BASE = '{% url "evento_excluir" 0 %}';
-    const URL_DETALHES_BASE = '{% url "evento_detalhes" 0 %}';
-    const URL_QUICK_ADD = '{% url "evento_quick_add" %}';
-
-    // Inicializar
-    document.addEventListener('DOMContentLoaded', function() {
-        initFormHandlers();
-        atualizarEstatisticas();
-    });
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    // ================= MODAIS =================
-    function abrirModal(modalId) {
-        document.getElementById('modal-overlay').classList.add('active');
-        document.getElementById(modalId).classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function fecharModal(modalId) {
-        document.getElementById('modal-overlay').classList.remove('active');
-        document.getElementById(modalId).classList.remove('active');
-        document.body.style.overflow = '';
-        eventoAtualId = null;
-    }
-
-    function fecharTodosModais() {
-        document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-        document.getElementById('modal-overlay').classList.remove('active');
-        document.body.style.overflow = '';
-        eventoAtualId = null;
-    }
-
-    // ================= CRIAR EVENTO =================
-    function abrirModalCriar() {
-        document.getElementById('form-criar').reset();
-        document.getElementById('criar-data').value = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${String(diaAtual).padStart(2, '0')}`;
-        document.getElementById('criar-hora').value = '09:00';
-        abrirModal('modal-criar');
-    }
-
-    // ================= EDITAR EVENTO =================
-    function abrirModalEditar(id) {
-        eventoAtualId = id;
-        fetch(URL_DETALHES_BASE.replace('0', id))
-            .then(r => r.json())
-            .then(data => {
-                if (data.sucesso) {
-                    const e = data.evento;
-                    document.getElementById('editar-id').value = e.id;
-                    document.getElementById('editar-titulo').value = e.titulo;
-                    document.getElementById('editar-data').value = e.data;
-                    document.getElementById('editar-hora').value = e.hora;
-                    document.getElementById('editar-duracao').value = e.duracao_minutos;
-                    document.getElementById('editar-tipo').value = e.tipo;
-                    document.getElementById('editar-descricao').value = e.descricao || '';
-                    document.getElementById('editar-local').value = e.local || '';
-                    document.getElementById('editar-responsavel').value = e.responsavel || '';
-                    document.getElementById('editar-email').value = e.email || '';
-                    document.getElementById('editar-telefone').value = e.telefone || '';
-                    document.getElementById('editar-cor').value = e.cor || '#111827';
-                    document.getElementById('editar-notas').value = e.notas || '';
-                    abrirModal('modal-editar');
-                } else {
-                    mostrarToast('Erro ao carregar evento', 'erro');
-                }
-            })
-            .catch(() => mostrarToast('Erro ao carregar evento', 'erro'));
-    }
-
-    // ================= EXCLUIR EVENTO =================
-    function abrirModalExcluir(id) {
-        eventoAtualId = id;
-        fetch(URL_DETALHES_BASE.replace('0', id))
-            .then(r => r.json())
-            .then(data => {
-                if (data.sucesso) {
-                    document.getElementById('excluir-titulo').textContent = `"${data.evento.titulo}"`;
-                    abrirModal('modal-excluir');
-                }
-            })
-            .catch(() => mostrarToast('Erro ao carregar evento', 'erro'));
-    }
-
-    function excluirEventoAtual() {
-        if (eventoAtualId) {
-            abrirModalExcluir(eventoAtualId);
-        }
-    }
-
-    function confirmarExclusao() {
-        if (!eventoAtualId) return;
-        
-        fetch(URL_EXCLUIR_BASE.replace('0', eventoAtualId), {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.sucesso) {
-                mostrarToast(data.mensagem, 'sucesso');
-                fecharModal('modal-excluir');
-                setTimeout(() => location.reload(), 500);
-            } else {
-                mostrarToast(data.mensagem, 'erro');
-            }
-        })
-        .catch(() => mostrarToast('Erro ao excluir evento', 'erro'));
-    }
-
-    // ================= QUICK ADD =================
-    function abrirModalQuickAdd(data, hora) {
-        document.getElementById('form-quick-add').reset();
-        document.getElementById('quick-data').value = data;
-        document.getElementById('quick-hora').value = hora;
-        
-        const dataObj = new Date(data + 'T00:00:00');
-        const opcoes = { weekday: 'long', day: 'numeric', month: 'long' };
-        document.getElementById('quick-data-display').textContent = 
-            dataObj.toLocaleDateString('pt-BR', opcoes) + ' às ' + hora;
-        
-        abrirModal('modal-quick-add');
-    }
-
-    // ================= FORM HANDLERS =================
-    function initFormHandlers() {
-        // Form Criar
-        document.getElementById('form-criar').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const jsonData = {};
-            formData.forEach((value, key) => jsonData[key] = value);
-            
-            fetch(URL_CRIAR, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify(jsonData)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.sucesso) {
-                    mostrarToast(data.mensagem, 'sucesso');
-                    fecharModal('modal-criar');
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    mostrarToast(data.mensagem || 'Erro de validação', 'erro');
-                }
-            })
-            .catch(() => mostrarToast('Erro ao criar evento', 'erro'));
-        });
-
-        // Form Editar
-        document.getElementById('form-editar').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const jsonData = {};
-            formData.forEach((value, key) => jsonData[key] = value);
-            
-            const id = document.getElementById('editar-id').value;
-            fetch(URL_EDITAR_BASE.replace('0', id), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify(jsonData)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.sucesso) {
-                    mostrarToast(data.mensagem, 'sucesso');
-                    fecharModal('modal-editar');
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    mostrarToast(data.mensagem || 'Erro de validação', 'erro');
-                }
-            })
-            .catch(() => mostrarToast('Erro ao atualizar evento', 'erro'));
-        });
-
-        // Form Quick Add
-        document.getElementById('form-quick-add').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const jsonData = {};
-            formData.forEach((value, key) => jsonData[key] = value);
-            
-            fetch(URL_QUICK_ADD, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify(jsonData)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.sucesso) {
-                    mostrarToast(data.mensagem, 'sucesso');
-                    fecharModal('modal-quick-add');
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    mostrarToast(data.mensagem || 'Erro ao agendar', 'erro');
-                }
-            })
-            .catch(() => mostrarToast('Erro ao agendar', 'erro'));
-        });
-    }
-
-    // ================= SELECIONAR DIA =================
-    function selecionarDia(ano, mes, dia) {
-        window.location.href = `?ano=${ano}&mes=${mes}&dia=${dia}`;
-    }
-
-    // ================= TOGGLE VIEW =================
-    function toggleView(view) {
-        document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`[data-view="${view}"]`).classList.add('active');
-    }
-
-    // ================= TOAST =================
-    function mostrarToast(mensagem, tipo = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${tipo}`;
-        
-        const icones = {
-            sucesso: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-            erro: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
-            info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
-        };
-        
-        toast.innerHTML = `${icones[tipo] || icones.info}<span>${mensagem}</span>`;
-        container.appendChild(toast);
-        
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // ================= ESTATÍSTICAS =================
-    function atualizarEstatisticas() {
-        const totalEventos = document.querySelectorAll('.evento-card').length;
-        document.getElementById('total-eventos').textContent = totalEventos;
-        
-        // Contar eventos no mês (pelos pontos no calendário)
-        let eventosMes = 0;
-        document.querySelectorAll('.dia-com-evento').forEach(el => {
-            eventosMes += el.querySelectorAll('.evento-ponto').length;
-        });
-        document.getElementById('eventos-mes').textContent = eventosMes;
-    }
-
-    // ================= TECLAS =================
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') fecharTodosModais();
-    });
+  window.URL_CRIAR         = "{% url 'evento_criar' %}";
+  window.URL_DETALHES_BASE = "{% url 'evento_detalhes' 0 %}";
+  window.URL_EDITAR_BASE   = "{% url 'evento_editar' 0 %}";
+  window.URL_EXCLUIR_BASE  = "{% url 'evento_excluir' 0 %}";
+  window.CALENDARIO_DATA   = { ano: {{ ano }}, mes: {{ mes }}, dia: {{ dia }} };
 </script>
 {% endblock %}
