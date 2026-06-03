@@ -7,11 +7,12 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-calendario-sistema-crud-2026'
+SECRET_KEY = "django-insecure-dv1$o7rmw%5%1-5v^aj5(h9zfl#gi)=7=2$s=qs86=-xjr72bj"
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['meucalendario.pythonanywhere.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
