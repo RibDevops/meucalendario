@@ -13,8 +13,14 @@ def service_worker(request):
         content = f.read()
     return HttpResponse(content, content_type='application/javascript')
 
+def favicon(request):
+    ico_path = os.path.join(settings.BASE_DIR, 'calendario', 'static', 'favicon.ico')
+    with open(ico_path, 'rb') as f:
+        return HttpResponse(f.read(), content_type='image/x-icon')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('sw.js', service_worker, name='service_worker'),
+    path('favicon.ico', favicon, name='favicon'),
     path('', include('calendario.urls')),
 ]

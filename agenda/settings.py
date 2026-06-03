@@ -12,7 +12,7 @@ SECRET_KEY = "django-insecure-dv1$o7rmw%5%1-5v^aj5(h9zfl#gi)=7=2$s=qs86=-xjr72bj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['meucalendario.pythonanywhere.com']
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
