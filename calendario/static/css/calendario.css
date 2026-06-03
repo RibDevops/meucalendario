@@ -706,12 +706,15 @@ body {
 
     .cal-container {
         grid-template-columns: 1fr;
+        grid-template-rows: auto 1px auto;
+        align-content: start;
         border-radius: 0;
         border-left: none;
         border-right: none;
         border-top: none;
         max-width: 100%;
         min-height: unset;
+        height: auto;
     }
 
     .cal-divider {
@@ -720,11 +723,11 @@ body {
     }
 
     .cal-left {
-        padding: 20px 16px;
+        padding: 20px 16px 12px;
     }
 
     .cal-right {
-        padding: 20px 16px;
+        padding: 16px 16px 20px;
     }
 
     .cal-dia {
