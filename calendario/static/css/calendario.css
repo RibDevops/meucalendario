@@ -711,7 +711,7 @@ body {
         border-right: none;
         border-top: none;
         max-width: 100%;
-        min-height: 100vh;
+        min-height: unset;
     }
 
     .cal-divider {
