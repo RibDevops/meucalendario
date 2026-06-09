@@ -761,7 +761,18 @@ body {
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    .form-grupo-row {
-        grid-template-columns: 1fr;
+    .modal-header {
+        padding: 16px 16px 0;
+    }
+
+    .modal-body {
+        padding: 14px 16px 16px;
+    }
+
+    input[type="date"].form-input,
+    input[type="time"].form-input {
+        height: 42px;
+        padding: 0 10px;
+        line-height: 42px;
     }
 }
