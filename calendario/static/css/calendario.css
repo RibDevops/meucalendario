@@ -702,9 +702,9 @@ body {
     .cal-wrapper {
         padding: 0;
         /* SAFE AREA — espaço para a barra de status do celular (notch/ilha dinâmica).
-           Se o título "junho 2026" ficar colado na barra do topo, aumente este valor.
-           Valor atual: env(safe-area-inset-top) + 8px de folga extra. */
-        padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
+           max() garante mínimo de 60px em qualquer iPhone (incluindo iPhone 15 com Dynamic Island).
+           Se ainda ficar colado, aumente o 60px abaixo. */
+        padding-top: max(env(safe-area-inset-top, 0px), 60px);
         align-items: flex-start;
     }
 
