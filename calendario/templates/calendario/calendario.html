@@ -24,14 +24,12 @@
         </div>
       </div>
 
-      <!-- Cabeçalho dias da semana -->
       <div class="cal-semana-header">
         {% for d in dias_semana %}
           <div class="cal-semana-label">{{ d }}</div>
         {% endfor %}
       </div>
 
-      <!-- Grid de dias -->
       <div class="cal-grid">
         {% for semana in dias_mes %}
           <div class="cal-semana">
@@ -79,8 +77,8 @@
               <div class="evento-hora">{{ evento.hora_inicio_formatada }}</div>
               <div class="evento-info">
                 <div class="evento-titulo-item">{{ evento.titulo }}</div>
-                {% if evento.local %}
-                  <div class="evento-local-item">{{ evento.local }}</div>
+                {% if evento.responsavel %}
+                  <div class="evento-local-item">{{ evento.responsavel }}</div>
                 {% endif %}
               </div>
             </div>
@@ -96,9 +94,7 @@
   </div>
 </div>
 
-<!-- ================================
-     OVERLAY GERAL
-================================ -->
+<!-- OVERLAY -->
 <div class="modal-overlay" id="modal-overlay" onclick="fecharPorOverlay(event)">
 
   <!-- MODAL: CRIAR EVENTO -->
@@ -126,36 +122,9 @@
             </div>
           </div>
 
-          <div class="form-grupo-row">
-            <div class="form-grupo">
-              <label class="form-label">Duração (min)</label>
-              <input type="number" name="duracao_minutos" id="criar-duracao" class="form-input" value="30" min="5" step="5">
-            </div>
-            <div class="form-grupo">
-              <label class="form-label">Tipo</label>
-              <select name="tipo" id="criar-tipo" class="form-select">
-                <option value="reuniao">Reunião</option>
-                <option value="auditoria">Auditoria</option>
-                <option value="consultoria">Consultoria</option>
-                <option value="treinamento">Treinamento</option>
-                <option value="outro">Outro</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-grupo">
-            <label class="form-label">Local / Link</label>
-            <input type="text" name="local" id="criar-local" class="form-input" placeholder="Ex: Google Meet ou Sala 101">
-          </div>
-
           <div class="form-grupo">
             <label class="form-label">Responsável</label>
             <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Nome do responsável">
-          </div>
-
-          <div class="form-grupo">
-            <label class="form-label">Descrição</label>
-            <textarea name="descricao" id="criar-descricao" class="form-textarea" placeholder="Detalhes do evento..."></textarea>
           </div>
 
           <div class="form-grupo">
@@ -180,9 +149,7 @@
       <h3 class="modal-titulo" id="detalhe-titulo">—</h3>
       <button class="modal-fechar" onclick="fecharModal('modal-detalhe')">×</button>
     </div>
-    <div class="modal-detalhe-body" id="detalhe-corpo">
-      <!-- preenchido via JS -->
-    </div>
+    <div class="modal-detalhe-body" id="detalhe-corpo"></div>
     <div class="modal-acoes">
       <button class="btn btn-secundario btn-editar" onclick="abrirModalEditarDoDetalhe()">Editar</button>
       <button class="btn btn-perigo btn-editar" onclick="abrirModalExcluirDoDetalhe()">Excluir</button>
@@ -215,36 +182,9 @@
             </div>
           </div>
 
-          <div class="form-grupo-row">
-            <div class="form-grupo">
-              <label class="form-label">Duração (min)</label>
-              <input type="number" name="duracao_minutos" id="editar-duracao" class="form-input" min="5" step="5">
-            </div>
-            <div class="form-grupo">
-              <label class="form-label">Tipo</label>
-              <select name="tipo" id="editar-tipo" class="form-select">
-                <option value="reuniao">Reunião</option>
-                <option value="auditoria">Auditoria</option>
-                <option value="consultoria">Consultoria</option>
-                <option value="treinamento">Treinamento</option>
-                <option value="outro">Outro</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-grupo">
-            <label class="form-label">Local / Link</label>
-            <input type="text" name="local" id="editar-local" class="form-input" placeholder="Ex: Google Meet">
-          </div>
-
           <div class="form-grupo">
             <label class="form-label">Responsável</label>
             <input type="text" name="responsavel" id="editar-responsavel" class="form-input">
-          </div>
-
-          <div class="form-grupo">
-            <label class="form-label">Descrição</label>
-            <textarea name="descricao" id="editar-descricao" class="form-textarea"></textarea>
           </div>
 
           <div class="form-grupo">
@@ -280,10 +220,8 @@
 
 </div>
 
-<!-- Toast container -->
 <div class="toast-container" id="toast-container"></div>
 
-<!-- URLs para o JS -->
 <script>
   window.URL_CRIAR         = "{% url 'evento_criar' %}";
   window.URL_DETALHES_BASE = "{% url 'evento_detalhes' 0 %}";

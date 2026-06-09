@@ -4,13 +4,8 @@
 
 if (typeof eventoAtualId === 'undefined') var eventoAtualId = null;
 
-// ================================
-// INIT
-// ================================
-
 document.addEventListener('DOMContentLoaded', function () {
     initFormHandlers();
-
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') fecharTodosModais();
     });
@@ -25,14 +20,13 @@ function selecionarDia(ano, mes, dia) {
 }
 
 // ================================
-// OVERLAY / MODAIS
+// MODAIS
 // ================================
 
 function abrirModal(id) {
     document.getElementById('modal-overlay').classList.add('active');
     document.getElementById(id).classList.add('active');
     document.body.style.overflow = 'hidden';
-
     setTimeout(() => {
         const el = document.getElementById(id);
         const input = el && el.querySelector('input:not([type="hidden"]):not([type="color"]), textarea, select');
@@ -43,14 +37,12 @@ function abrirModal(id) {
 function fecharModal(id) {
     const modal = document.getElementById(id);
     if (modal) modal.classList.remove('active');
-
     const abertos = document.querySelectorAll('.modal.active');
     if (abertos.length === 0) {
         document.getElementById('modal-overlay').classList.remove('active');
         document.body.style.overflow = '';
+        eventoAtualId = null;
     }
-
-    if (abertos.length === 0) eventoAtualId = null;
 }
 
 function fecharTodosModais() {
@@ -62,27 +54,19 @@ function fecharTodosModais() {
 }
 
 function fecharPorOverlay(e) {
-    if (e.target === document.getElementById('modal-overlay')) {
-        fecharTodosModais();
-    }
+    if (e.target === document.getElementById('modal-overlay')) fecharTodosModais();
 }
 
 // ================================
-// CRIAR EVENTO
+// CRIAR
 // ================================
 
 function abrirModalCriar(dataPre, horaPre) {
     const form = document.getElementById('form-criar');
     if (form) form.reset();
-
-    const hoje = new Date();
-    const data = dataPre || formatarDataInput(hoje);
-    const hora = horaPre || '09:00';
-
-    setVal('criar-data', data);
-    setVal('criar-hora', hora);
+    setVal('criar-data', dataPre || formatarDataInput(new Date()));
+    setVal('criar-hora', horaPre || '09:00');
     setVal('criar-cor', '#6366f1');
-
     abrirModal('modal-criar');
 }
 
@@ -99,52 +83,28 @@ function submitCriar(formData) {
 }
 
 // ================================
-// DETALHE DO EVENTO
+// DETALHE
 // ================================
 
 function abrirModalDetalhe(id) {
     eventoAtualId = id;
-    const url = urlComId(window.URL_DETALHES_BASE, id);
-
-    fetchJson(url, 'GET', null, function (data) {
+    fetchJson(urlComId(window.URL_DETALHES_BASE, id), 'GET', null, function (data) {
         if (!data.sucesso) return mostrarToast('Erro ao carregar evento', 'erro');
-
         const ev = data.evento;
         document.getElementById('detalhe-titulo').textContent = ev.titulo;
-
         const corpo = document.getElementById('detalhe-corpo');
         const dataFmt = formatarDataExibicao(ev.data);
-        const durStr  = ev.duracao_minutos >= 60
-            ? Math.floor(ev.duracao_minutos / 60) + 'h' + (ev.duracao_minutos % 60 ? (ev.duracao_minutos % 60) + 'min' : '')
-            : ev.duracao_minutos + 'min';
-
         corpo.innerHTML = `
             <div class="detalhe-row">
                 ${iconeSvg('clock')}
-                <div class="detalhe-valor">${dataFmt} às ${ev.hora} · ${durStr}</div>
+                <div class="detalhe-valor">${dataFmt} às ${ev.hora}</div>
             </div>
-            ${ev.tipo_display ? `
-            <div class="detalhe-row">
-                ${iconeSvg('tag')}
-                <div class="detalhe-valor">${ev.tipo_display}</div>
-            </div>` : ''}
-            ${ev.local ? `
-            <div class="detalhe-row">
-                ${iconeSvg('map')}
-                <div class="detalhe-valor">${ev.local}</div>
-            </div>` : ''}
             ${ev.responsavel ? `
             <div class="detalhe-row">
                 ${iconeSvg('user')}
-                <div class="detalhe-valor">${ev.responsavel}${ev.email ? ' · ' + ev.email : ''}${ev.telefone ? ' · ' + ev.telefone : ''}</div>
-            </div>` : ''}
-            ${ev.descricao ? `
-            <div class="detalhe-row">
-                ${iconeSvg('file')}
-                <div class="detalhe-valor">${ev.descricao}</div>
+                <div class="detalhe-valor">${ev.responsavel}</div>
             </div>` : ''}
         `;
-
         abrirModal('modal-detalhe');
     });
 }
@@ -164,36 +124,26 @@ function abrirModalExcluirDoDetalhe() {
 }
 
 // ================================
-// EDITAR EVENTO
+// EDITAR
 // ================================
 
 function abrirModalEditar(id) {
     eventoAtualId = id;
-    const url = urlComId(window.URL_DETALHES_BASE, id);
-
-    fetchJson(url, 'GET', null, function (data) {
+    fetchJson(urlComId(window.URL_DETALHES_BASE, id), 'GET', null, function (data) {
         if (!data.sucesso) return mostrarToast('Erro ao carregar evento', 'erro');
-
         const ev = data.evento;
         setVal('editar-id',          ev.id);
         setVal('editar-titulo',      ev.titulo);
         setVal('editar-data',        ev.data);
         setVal('editar-hora',        ev.hora);
-        setVal('editar-duracao',     ev.duracao_minutos);
-        setVal('editar-tipo',        ev.tipo);
-        setVal('editar-descricao',   ev.descricao || '');
-        setVal('editar-local',       ev.local || '');
         setVal('editar-responsavel', ev.responsavel || '');
         setVal('editar-cor',         ev.cor || '#6366f1');
-
         abrirModal('modal-editar');
     });
 }
 
 function submitEditar(id, formData) {
-    const url = urlComId(window.URL_EDITAR_BASE, id);
-
-    fetchJson(url, 'POST', formData, function (data) {
+    fetchJson(urlComId(window.URL_EDITAR_BASE, id), 'POST', formData, function (data) {
         if (data.sucesso) {
             mostrarToast(data.mensagem || 'Evento atualizado!', 'sucesso');
             fecharModal('modal-editar');
@@ -205,14 +155,12 @@ function submitEditar(id, formData) {
 }
 
 // ================================
-// EXCLUIR EVENTO
+// EXCLUIR
 // ================================
 
 function abrirModalExcluir(id) {
     eventoAtualId = id;
-    const url = urlComId(window.URL_DETALHES_BASE, id);
-
-    fetchJson(url, 'GET', null, function (data) {
+    fetchJson(urlComId(window.URL_DETALHES_BASE, id), 'GET', null, function (data) {
         if (data.sucesso) {
             const el = document.getElementById('excluir-titulo');
             if (el) el.textContent = '"' + data.evento.titulo + '"';
@@ -223,9 +171,7 @@ function abrirModalExcluir(id) {
 
 function confirmarExclusao() {
     if (!eventoAtualId) return;
-    const url = urlComId(window.URL_EXCLUIR_BASE, eventoAtualId);
-
-    fetchJson(url, 'POST', {}, function (data) {
+    fetchJson(urlComId(window.URL_EXCLUIR_BASE, eventoAtualId), 'POST', {}, function (data) {
         if (data.sucesso) {
             mostrarToast(data.mensagem || 'Evento excluído!', 'sucesso');
             fecharModal('modal-excluir');
@@ -266,20 +212,17 @@ function initFormHandlers() {
 function mostrarToast(msg, tipo = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
-
     const icones = {
         sucesso: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>',
         erro:    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
         info:    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line></svg>'
     };
-
     const toast = document.createElement('div');
     toast.className = `toast toast-${tipo}`;
     toast.innerHTML = (icones[tipo] || icones.info) + `<span>${msg}</span>`;
     container.appendChild(toast);
     toast.offsetHeight;
     requestAnimationFrame(() => toast.classList.add('show'));
-
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -298,20 +241,13 @@ function getCsrfToken() {
 function fetchJson(url, method, body, callback) {
     const opts = {
         method,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        }
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() }
     };
     if (body && method !== 'GET') opts.body = JSON.stringify(body);
-
     fetch(url, opts)
         .then(r => r.json())
         .then(callback)
-        .catch(err => {
-            console.error(err);
-            mostrarToast('Erro de conexão', 'erro');
-        });
+        .catch(err => { console.error(err); mostrarToast('Erro de conexão', 'erro'); });
 }
 
 function formParaJson(form) {
@@ -320,19 +256,9 @@ function formParaJson(form) {
     return json;
 }
 
-function urlComId(base, id) {
-    return base.replace('/0/', `/${id}/`);
-}
-
-function setVal(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.value = val;
-}
-
-function getVal(id) {
-    const el = document.getElementById(id);
-    return el ? el.value : null;
-}
+function urlComId(base, id) { return base.replace('/0/', `/${id}/`); }
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+function getVal(id) { const el = document.getElementById(id); return el ? el.value : null; }
 
 function formatarDataInput(d) {
     return d.getFullYear() + '-'
@@ -349,10 +275,7 @@ function formatarDataExibicao(iso) {
 function iconeSvg(tipo) {
     const icons = {
         clock: '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
-        tag:   '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>',
-        map:   '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
         user:  '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
-        file:  '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>',
     };
     return icons[tipo] || '';
 }
