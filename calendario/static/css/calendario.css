@@ -701,6 +701,10 @@ body {
 @media (max-width: 640px) {
     .cal-wrapper {
         padding: 0;
+        /* SAFE AREA — espaço para a barra de status do celular (notch/ilha dinâmica).
+           Se o título "junho 2026" ficar colado na barra do topo, aumente este valor.
+           Valor atual: env(safe-area-inset-top) + 8px de folga extra. */
+        padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
         align-items: flex-start;
     }
 
