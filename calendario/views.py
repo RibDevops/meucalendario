@@ -1,6 +1,6 @@
 import calendar
 import json
-from datetime import date
+from datetime import date, timedelta
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
@@ -93,6 +93,24 @@ def calendario_view(request):
     return render(request, 'calendario/calendario.html', context)
 
 
+def _proxima_data(dt, recorrencia, n):
+    """Retorna a data dt deslocada n vezes conforme a recorrência."""
+    if recorrencia == 'semanal':
+        return dt + timedelta(weeks=n)
+    elif recorrencia == 'mensal':
+        mes_total = dt.month - 1 + n
+        ano = dt.year + mes_total // 12
+        mes = mes_total % 12 + 1
+        dia = min(dt.day, calendar.monthrange(ano, mes)[1])
+        return dt.replace(year=ano, month=mes, day=dia)
+    elif recorrencia == 'anual':
+        try:
+            return dt.replace(year=dt.year + n)
+        except ValueError:
+            return dt.replace(year=dt.year + n, day=28)
+    return None
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def evento_criar(request):
@@ -101,13 +119,35 @@ def evento_criar(request):
             dados = json.loads(request.body)
             form = EventoForm(dados)
         else:
-            form = EventoForm(request.POST)
+            dados = request.POST.dict()
+            form = EventoForm(dados)
+
+        recorrencia = dados.get('recorrencia', 'nenhuma')
 
         if form.is_valid():
             evento = form.save()
+
+            repeticoes = {'semanal': 51, 'mensal': 11, 'anual': 4}
+            total = repeticoes.get(recorrencia, 0)
+
+            for n in range(1, total + 1):
+                nova_dt = _proxima_data(evento.data_inicio, recorrencia, n)
+                if nova_dt:
+                    Evento.objects.create(
+                        titulo=evento.titulo,
+                        data_inicio=nova_dt,
+                        responsavel=evento.responsavel,
+                        cor=evento.cor,
+                    )
+
+            msgs = {
+                'semanal': f'Evento criado — repetindo por 52 semanas!',
+                'mensal':  f'Evento criado — repetindo por 12 meses!',
+                'anual':   f'Evento criado — repetindo por 5 anos!',
+            }
             return JsonResponse({
                 'sucesso': True,
-                'mensagem': 'Evento criado com sucesso!',
+                'mensagem': msgs.get(recorrencia, 'Evento criado com sucesso!'),
                 'evento': _serializar(evento)
             })
         else:

@@ -127,11 +127,22 @@
             <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Nome do responsável">
           </div>
 
-          <div class="form-grupo">
-            <label class="form-label">Cor</label>
-            <div class="form-color-wrapper">
-              <input type="color" name="cor" id="criar-cor" class="form-color" value="#6366f1">
-              <span class="form-color-label">Cor do evento</span>
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Cor</label>
+              <div class="form-color-wrapper">
+                <input type="color" name="cor" id="criar-cor" class="form-color" value="#6366f1">
+                <span class="form-color-label">Cor</span>
+              </div>
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Repetir</label>
+              <select name="recorrencia" id="criar-recorrencia" class="form-select">
+                <option value="nenhuma">Não repetir</option>
+                <option value="semanal">Semanalmente</option>
+                <option value="mensal">Mensalmente</option>
+                <option value="anual">Anualmente</option>
+              </select>
             </div>
           </div>
         </div>
