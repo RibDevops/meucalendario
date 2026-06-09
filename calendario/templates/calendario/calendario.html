@@ -139,7 +139,7 @@
     </div>
     <div class="modal-acoes">
       <button class="btn btn-secundario" onclick="fecharModal('modal-criar')">Cancelar</button>
-      <button class="btn btn-primario" onclick="document.getElementById('form-criar').dispatchEvent(new Event('submit'))">Criar evento</button>
+      <button class="btn btn-primario" onclick="submitCriar(formParaJson(document.getElementById('form-criar')))">Criar evento</button>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
     </div>
     <div class="modal-acoes">
       <button class="btn btn-secundario" onclick="fecharModal('modal-editar')">Cancelar</button>
-      <button class="btn btn-primario" onclick="document.getElementById('form-editar').dispatchEvent(new Event('submit'))">Salvar</button>
+      <button class="btn btn-primario" onclick="(function(){ var id=document.getElementById('editar-id').value; if(id) submitEditar(id, formParaJson(document.getElementById('form-editar'))); })()">Salvar</button>
     </div>
   </div>
 
