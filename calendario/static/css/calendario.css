@@ -351,10 +351,19 @@ body {
     width: 100%;
     max-width: 460px;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden; /* O modal em si não scrola, o body sim */
     display: none;
     flex-direction: column;
     animation: modalIn 0.2s ease;
+}
+
+.modal-body {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto; /* Scroll interno para o conteúdo do formulário */
+    max-height: calc(90vh - 120px); /* Espaço para header e footer */
 }
 
 .modal.active {
@@ -436,9 +445,34 @@ body {
     gap: 12px;
 }
 
-@media (max-width: 480px) {
+/* Melhoria para PWA e Telas Pequenas (iPhone 15) */
+@media (max-width: 640px) {
+    .modal {
+        max-height: 85vh; /* Garante que o modal caiba com o teclado aberto */
+        max-width: 95vw;
+        margin-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .modal-body {
+        padding: 12px 16px;
+        overflow-y: auto; /* Scroll interno se o conteúdo for longo */
+    }
+
+    /* Manter 2 colunas para campos curtos para economizar espaço vertical */
     .form-grupo-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr; 
+        gap: 8px;
+    }
+
+    /* Inputs maiores para facilitar o toque no iOS sem zoom */
+    .form-input, .form-select {
+        font-size: 16px !important;
+        padding: 10px;
+    }
+
+    .form-label {
+        font-size: 10px;
+        margin-bottom: 2px;
     }
 }
 
