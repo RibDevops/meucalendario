@@ -15,10 +15,18 @@ class EventoForm(forms.ModelForm):
         input_formats=['%H:%M']
     )
 
+    data_limite_recorrencia = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
+        label='Repetir até',
+        input_formats=['%Y-%m-%d'],
+        required=False
+    )
+
     class Meta:
         model = Evento
-        fields = ['titulo', 'data', 'hora', 'responsavel', 'cor']
+        fields = ['titulo', 'data', 'hora', 'responsavel', 'categoria', 'cor', 'data_limite_recorrencia']
         widgets = {
+            'categoria': forms.Select(attrs={'class': 'form-select'}),
             'titulo': forms.TextInput(attrs={
                 'class': 'form-input',
                 'placeholder': 'Ex: Reunião de planejamento'

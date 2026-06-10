@@ -433,7 +433,13 @@ body {
 .form-grupo-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .form-grupo-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 .form-label {
@@ -774,5 +780,22 @@ body {
         height: 42px;
         padding: 0 10px;
         line-height: 42px;
+    }
+
+    /* Ajuste fino para iPhone 15 e telas similares */
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    .form-label {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .form-input, .form-select {
+        font-size: 16px; /* Evita zoom automático no iOS ao focar */
     }
 }

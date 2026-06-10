@@ -1,6 +1,7 @@
 import calendar
 import json
-from datetime import date, timedelta
+import uuid
+from datetime import date, datetime, timedelta
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
@@ -123,27 +124,42 @@ def evento_criar(request):
             form = EventoForm(dados)
 
         recorrencia = dados.get('recorrencia', 'nenhuma')
+        data_limite_str = dados.get('data_limite_recorrencia')
+        data_limite = None
+        if data_limite_str:
+            try:
+                data_limite = datetime.strptime(data_limite_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
 
         if form.is_valid():
-            evento = form.save()
+            evento = form.save(commit=False)
+            if recorrencia != 'nenhuma':
+                evento.serie_id = str(uuid.uuid4())
+            evento.save()
 
-            repeticoes = {'semanal': 51, 'mensal': 11, 'anual': 4}
-            total = repeticoes.get(recorrencia, 0)
-
-            for n in range(1, total + 1):
-                nova_dt = _proxima_data(evento.data_inicio, recorrencia, n)
-                if nova_dt:
+            if recorrencia != 'nenhuma' and data_limite:
+                n = 1
+                while True:
+                    nova_dt = _proxima_data(evento.data_inicio, recorrencia, n)
+                    if not nova_dt or nova_dt.date() > data_limite:
+                        break
+                    
                     Evento.objects.create(
                         titulo=evento.titulo,
                         data_inicio=nova_dt,
                         responsavel=evento.responsavel,
+                        categoria=evento.categoria,
                         cor=evento.cor,
+                        serie_id=evento.serie_id,
+                        data_limite_recorrencia=data_limite
                     )
+                    n += 1
 
             msgs = {
-                'semanal': f'Evento criado — repetindo por 52 semanas!',
-                'mensal':  f'Evento criado — repetindo por 12 meses!',
-                'anual':   f'Evento criado — repetindo por 5 anos!',
+                'semanal': f'Evento criado com recorrência semanal!',
+                'mensal':  f'Evento criado com recorrência mensal!',
+                'anual':   f'Evento criado com recorrência anual!',
             }
             return JsonResponse({
                 'sucesso': True,
@@ -168,18 +184,34 @@ def evento_criar(request):
 def evento_editar(request, pk):
     try:
         evento = get_object_or_404(Evento, pk=pk)
-
+        
         if request.content_type == 'application/json':
             dados = json.loads(request.body)
-            form = EventoForm(dados, instance=evento)
         else:
-            form = EventoForm(request.POST, instance=evento)
+            dados = request.POST.dict()
+
+        editar_serie = dados.get('editar_serie') == 'true' or dados.get('editar_serie') is True
+        form = EventoForm(dados, instance=evento)
 
         if form.is_valid():
-            evento = form.save()
+            if editar_serie and evento.serie_id:
+                # Atualizar todos os eventos da série (apenas campos comuns)
+                eventos_serie = Evento.objects.filter(serie_id=evento.serie_id)
+                for ev in eventos_serie:
+                    ev.titulo = form.cleaned_data['titulo']
+                    ev.responsavel = form.cleaned_data['responsavel']
+                    ev.categoria = form.cleaned_data['categoria']
+                    ev.cor = form.cleaned_data['cor']
+                    # Nota: Não alteramos a data/hora individual de cada um na série para não bagunçar o calendário
+                    ev.save()
+                msg = 'Série de eventos atualizada!'
+            else:
+                evento = form.save()
+                msg = 'Evento atualizado com sucesso!'
+
             return JsonResponse({
                 'sucesso': True,
-                'mensagem': 'Evento atualizado com sucesso!',
+                'mensagem': msg,
                 'evento': _serializar(evento)
             })
         else:
@@ -201,6 +233,21 @@ def evento_excluir(request, pk):
     try:
         evento = get_object_or_404(Evento, pk=pk)
         titulo = evento.titulo
+        
+        excluir_serie = request.GET.get('excluir_serie') == 'true'
+        if not excluir_serie and request.method == 'POST':
+            try:
+                if request.content_type == 'application/json':
+                    dados = json.loads(request.body)
+                    excluir_serie = dados.get('excluir_serie') == 'true'
+            except:
+                pass
+
+        if excluir_serie and evento.serie_id:
+            count = Evento.objects.filter(serie_id=evento.serie_id).count()
+            Evento.objects.filter(serie_id=evento.serie_id).delete()
+            return JsonResponse({'sucesso': True, 'mensagem': f'Série com {count} eventos excluída!'})
+        
         evento.delete()
         return JsonResponse({'sucesso': True, 'mensagem': f'Evento "{titulo}" excluído!'})
     except Exception as e:
@@ -222,5 +269,8 @@ def _serializar(evento):
         'data': evento.data_inicio.strftime('%Y-%m-%d'),
         'hora': evento.data_inicio.strftime('%H:%M'),
         'responsavel': evento.responsavel,
+        'categoria': evento.categoria,
         'cor': evento.cor,
+        'serie_id': evento.serie_id,
+        'data_limite': evento.data_limite_recorrencia.strftime('%Y-%m-%d') if evento.data_limite_recorrencia else None,
     }

@@ -122,9 +122,21 @@
             </div>
           </div>
 
-          <div class="form-grupo">
-            <label class="form-label">Responsável</label>
-            <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Nome do responsável">
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Responsável</label>
+              <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Responsável">
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Categoria</label>
+              <select name="categoria" id="criar-categoria" class="form-select">
+                <option value="geral">Geral</option>
+                <option value="consulta">Consulta</option>
+                <option value="trabalho">Trabalho</option>
+                <option value="pessoal">Pessoal</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-grupo-row">
@@ -137,13 +149,18 @@
             </div>
             <div class="form-grupo">
               <label class="form-label">Repetir</label>
-              <select name="recorrencia" id="criar-recorrencia" class="form-select">
+              <select name="recorrencia" id="criar-recorrencia" class="form-select" onchange="toggleDataLimite('criar')">
                 <option value="nenhuma">Não repetir</option>
                 <option value="semanal">Semanalmente</option>
                 <option value="mensal">Mensalmente</option>
                 <option value="anual">Anualmente</option>
               </select>
             </div>
+          </div>
+
+          <div class="form-grupo" id="grupo-data-limite-criar" style="display:none;">
+            <label class="form-label">Repetir até</label>
+            <input type="date" name="data_limite_recorrencia" id="criar-data-limite" class="form-input">
           </div>
         </div>
       </form>
@@ -193,9 +210,21 @@
             </div>
           </div>
 
-          <div class="form-grupo">
-            <label class="form-label">Responsável</label>
-            <input type="text" name="responsavel" id="editar-responsavel" class="form-input">
+          <div class="form-grupo-row">
+            <div class="form-grupo">
+              <label class="form-label">Responsável</label>
+              <input type="text" name="responsavel" id="editar-responsavel" class="form-input">
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Categoria</label>
+              <select name="categoria" id="editar-categoria" class="form-select">
+                <option value="geral">Geral</option>
+                <option value="consulta">Consulta</option>
+                <option value="trabalho">Trabalho</option>
+                <option value="pessoal">Pessoal</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-grupo">
@@ -204,6 +233,13 @@
               <input type="color" name="cor" id="editar-cor" class="form-color" value="#6366f1">
               <span class="form-color-label">Cor do evento</span>
             </div>
+          </div>
+
+          <div id="opcoes-serie" style="display:none; margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" name="editar_serie" id="editar-serie-check" value="true">
+              <span>Aplicar alterações a toda a série</span>
+            </label>
           </div>
         </div>
       </form>
@@ -222,6 +258,12 @@
     </div>
     <div class="modal-excluir-body">
       <p>Tem certeza que deseja excluir<br><strong id="excluir-titulo">este evento</strong>?<br><br>Esta ação não pode ser desfeita.</p>
+      <div id="opcoes-excluir-serie" style="display:none; margin-bottom: 20px; padding: 10px; background: rgba(255,0,0,0.05); border-radius: 8px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="excluir-serie-check">
+          <span>Excluir toda a série de eventos</span>
+        </label>
+      </div>
       <div class="modal-acoes-excluir">
         <button class="btn btn-secundario" onclick="fecharModal('modal-excluir')">Cancelar</button>
         <button class="btn btn-perigo" onclick="confirmarExclusao()">Excluir</button>

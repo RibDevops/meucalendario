@@ -61,12 +61,22 @@ function fecharPorOverlay(e) {
 // CRIAR
 // ================================
 
+function toggleDataLimite(prefix) {
+    const select = document.getElementById(`${prefix}-recorrencia`);
+    const grupo = document.getElementById(`grupo-data-limite-${prefix}`);
+    if (select && grupo) {
+        grupo.style.display = select.value !== 'nenhuma' ? 'block' : 'none';
+    }
+}
+
 function abrirModalCriar(dataPre, horaPre) {
     const form = document.getElementById('form-criar');
     if (form) form.reset();
     setVal('criar-data', dataPre || formatarDataInput(new Date()));
     setVal('criar-hora', horaPre || '09:00');
     setVal('criar-cor', '#6366f1');
+    setVal('criar-categoria', 'geral');
+    toggleDataLimite('criar');
     abrirModal('modal-criar');
 }
 
@@ -91,19 +101,26 @@ function abrirModalDetalhe(id) {
     fetchJson(urlComId(window.URL_DETALHES_BASE, id), 'GET', null, function (data) {
         if (!data.sucesso) return mostrarToast('Erro ao carregar evento', 'erro');
         const ev = data.evento;
+        window.EVENTO_ATUAL_DATA = ev; // Salva para uso na edição/exclusão
         document.getElementById('detalhe-titulo').textContent = ev.titulo;
         const corpo = document.getElementById('detalhe-corpo');
         const dataFmt = formatarDataExibicao(ev.data);
+        const catFmt = ev.categoria.charAt(0).toUpperCase() + ev.categoria.slice(1);
         corpo.innerHTML = `
             <div class="detalhe-row">
                 ${iconeSvg('clock')}
                 <div class="detalhe-valor">${dataFmt} às ${ev.hora}</div>
+            </div>
+            <div class="detalhe-row">
+                ${iconeSvg('tag')}
+                <div class="detalhe-valor">${catFmt}</div>
             </div>
             ${ev.responsavel ? `
             <div class="detalhe-row">
                 ${iconeSvg('user')}
                 <div class="detalhe-valor">${ev.responsavel}</div>
             </div>` : ''}
+            ${ev.serie_id ? `<div class="detalhe-row" style="opacity: 0.6; font-size: 11px; margin-top: 8px;">Evento Recorrente</div>` : ''}
         `;
         abrirModal('modal-detalhe');
     });
@@ -137,7 +154,18 @@ function abrirModalEditar(id) {
         setVal('editar-data',        ev.data);
         setVal('editar-hora',        ev.hora);
         setVal('editar-responsavel', ev.responsavel || '');
+        setVal('editar-categoria',   ev.categoria || 'geral');
         setVal('editar-cor',         ev.cor || '#6366f1');
+        
+        const opcoesSerie = document.getElementById('opcoes-serie');
+        if (ev.serie_id && opcoesSerie) {
+            opcoesSerie.style.display = 'block';
+            const check = document.getElementById('editar-serie-check');
+            if (check) check.checked = false;
+        } else if (opcoesSerie) {
+            opcoesSerie.style.display = 'none';
+        }
+
         abrirModal('modal-editar');
     });
 }
@@ -162,8 +190,19 @@ function abrirModalExcluir(id) {
     eventoAtualId = id;
     fetchJson(urlComId(window.URL_DETALHES_BASE, id), 'GET', null, function (data) {
         if (data.sucesso) {
+            const ev = data.evento;
             const el = document.getElementById('excluir-titulo');
-            if (el) el.textContent = '"' + data.evento.titulo + '"';
+            if (el) el.textContent = '"' + ev.titulo + '"';
+            
+            const opcoesExcluirSerie = document.getElementById('opcoes-excluir-serie');
+            if (ev.serie_id && opcoesExcluirSerie) {
+                opcoesExcluirSerie.style.display = 'block';
+                const check = document.getElementById('excluir-serie-check');
+                if (check) check.checked = false;
+            } else if (opcoesExcluirSerie) {
+                opcoesExcluirSerie.style.display = 'none';
+            }
+
             abrirModal('modal-excluir');
         }
     });
@@ -171,7 +210,11 @@ function abrirModalExcluir(id) {
 
 function confirmarExclusao() {
     if (!eventoAtualId) return;
-    fetchJson(urlComId(window.URL_EXCLUIR_BASE, eventoAtualId), 'POST', {}, function (data) {
+    const check = document.getElementById('excluir-serie-check');
+    const excluirSerie = check ? check.checked : false;
+    const payload = { excluir_serie: excluirSerie };
+
+    fetchJson(urlComId(window.URL_EXCLUIR_BASE, eventoAtualId), 'POST', payload, function (data) {
         if (data.sucesso) {
             mostrarToast(data.mensagem || 'Evento excluído!', 'sucesso');
             fecharModal('modal-excluir');
@@ -276,6 +319,7 @@ function iconeSvg(tipo) {
     const icons = {
         clock: '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
         user:  '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+        tag:   '<svg class="detalhe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>',
     };
     return icons[tipo] || '';
 }
