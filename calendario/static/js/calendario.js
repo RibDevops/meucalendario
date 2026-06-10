@@ -76,7 +76,12 @@ function abrirModalCriar(dataPre, horaPre) {
     setVal('criar-hora', horaPre || '09:00');
     setVal('criar-cor', '#6366f1');
     setVal('criar-categoria', 'geral');
+    
+    // Forçar a exibição correta da data limite ao abrir
+    const recorrenciaSelect = document.getElementById('criar-recorrencia');
+    if (recorrenciaSelect) recorrenciaSelect.value = 'nenhuma';
     toggleDataLimite('criar');
+    
     abrirModal('modal-criar');
 }
 
