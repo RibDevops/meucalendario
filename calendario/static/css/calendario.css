@@ -461,13 +461,19 @@ body {
     /* Manter 2 colunas para campos curtos para economizar espaço vertical */
     .form-grupo-row {
         grid-template-columns: 1fr 1fr; 
-        gap: 8px;
+        gap: 6px;
+    }
+
+    /* Caso específico para Data e Hora (Data precisa de mais espaço no iOS) */
+    .form-grupo-row:has(#criar-data), 
+    .form-grupo-row:has(#editar-data) {
+        grid-template-columns: 1.6fr 1fr; /* Data 60%, Hora 40% aproximadamente */
     }
 
     /* Inputs maiores para facilitar o toque no iOS sem zoom */
     .form-input, .form-select {
         font-size: 16px !important;
-        padding: 10px;
+        padding: 10px 6px; /* Padding lateral reduzido para caber texto longo */
     }
 
     .form-label {
