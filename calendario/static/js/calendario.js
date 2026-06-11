@@ -63,9 +63,17 @@ function fecharPorOverlay(e) {
 
 function toggleDataLimite(prefix) {
     const select = document.getElementById(`${prefix}-recorrencia`);
-    const grupo = document.getElementById(`grupo-data-limite-${prefix}`);
-    if (select && grupo) {
-        grupo.style.display = select.value !== 'nenhuma' ? 'block' : 'none';
+    const grupoDataLimite = document.getElementById(`grupo-data-limite-${prefix}`);
+    const grupoQuantidadeRepeticoes = document.getElementById(`grupo-quantidade-repeticoes-${prefix}`);
+
+    if (select) {
+        const isRecorrente = select.value !== 'nenhuma';
+        if (grupoDataLimite) {
+            grupoDataLimite.style.display = isRecorrente ? 'block' : 'none';
+        }
+        if (grupoQuantidadeRepeticoes) {
+            grupoQuantidadeRepeticoes.style.display = isRecorrente ? 'block' : 'none';
+        }
     }
 }
 

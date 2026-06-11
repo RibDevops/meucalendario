@@ -458,27 +458,29 @@ body {
         overflow-y: auto; /* Scroll interno se o conteúdo for longo */
     }
 
-    /* Manter 2 colunas para campos curtos para economizar espaço vertical */
+    /* Ajuste para garantir que campos em linha se empilhem em telas muito pequenas */
     .form-grupo-row {
-        grid-template-columns: 1fr 1fr; 
-        gap: 6px;
+        grid-template-columns: 1fr; /* Força uma coluna única para todos os form-grupo-row */
+        gap: 12px; /* Aumenta o gap vertical entre os campos empilhados */
     }
 
-    /* Caso específico para Data e Hora (Data precisa de mais espaço no iOS) */
-    .form-grupo-row:has(#criar-data), 
+    /* Removida a regra de 2 colunas para Data e Hora para garantir largura total */
+    /* .form-grupo-row:has(#criar-data), 
     .form-grupo-row:has(#editar-data) {
-        grid-template-columns: 1.6fr 1fr; /* Data 60%, Hora 40% aproximadamente */
-    }
+        grid-template-columns: 1.6fr 1fr;
+    } */
 
     /* Inputs maiores para facilitar o toque no iOS sem zoom */
     .form-input, .form-select {
         font-size: 16px !important;
-        padding: 10px 6px; /* Padding lateral reduzido para caber texto longo */
+        padding: 12px 10px; /* Padding ajustado para melhor legibilidade */
+        min-width: 0; /* Garante que o input possa encolher se necessário */
+        width: 100%; /* Garante que o input ocupe a largura total disponível */
     }
 
     .form-label {
-        font-size: 10px;
-        margin-bottom: 2px;
+        font-size: 13px; /* Aumentado ligeiramente para melhor legibilidade */
+        margin-bottom: 4px;
     }
 }
 

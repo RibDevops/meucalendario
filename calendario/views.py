@@ -138,13 +138,33 @@ def evento_criar(request):
                 evento.serie_id = str(uuid.uuid4())
             evento.save()
 
-            if recorrencia != 'nenhuma' and data_limite:
+            if recorrencia != 'nenhuma':
+                quantidade_repeticoes = dados.get('quantidade_repeticoes')
+                try:
+                    quantidade_repeticoes = int(quantidade_repeticoes) if quantidade_repeticoes else None
+                except ValueError:
+                    quantidade_repeticoes = None
+
                 n = 1
                 while True:
-                    nova_dt = _proxima_data(evento.data_inicio, recorrencia, n)
-                    if not nova_dt or nova_dt.date() > data_limite:
+                    # Se tiver quantidade, para quando atingir o limite de repetições
+                    if quantidade_repeticoes and n >= quantidade_repeticoes:
                         break
                     
+                    nova_dt = _proxima_data(evento.data_inicio, recorrencia, n)
+                    
+                    # Se tiver data limite, para quando atingir a data
+                    if not nova_dt or (data_limite and nova_dt.date() > data_limite):
+                        break
+                    
+                    # Se não tiver nem data limite nem quantidade, paramos para evitar loop infinito
+                    # (Embora a lógica atual exija um dos dois ou pare por padrão)
+                    if not data_limite and not quantidade_repeticoes:
+                        # Limite de segurança de 1 ano se nada for especificado
+                        if n >= 52 and recorrencia == 'semanal': break
+                        if n >= 12 and recorrencia == 'mensal': break
+                        if n >= 10 and recorrencia == 'anual': break
+
                     Evento.objects.create(
                         titulo=evento.titulo,
                         data_inicio=nova_dt,

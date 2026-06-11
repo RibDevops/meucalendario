@@ -22,9 +22,17 @@ class EventoForm(forms.ModelForm):
         required=False
     )
 
+    quantidade_repeticoes = forms.IntegerField(
+        required=False,
+        min_value=1,
+        initial=1,
+        label='Quantidade de Repetições',
+        widget=forms.NumberInput(attrs={'class': 'form-input', 'min': '1'})
+    )
+
     class Meta:
         model = Evento
-        fields = ['titulo', 'data', 'hora', 'responsavel', 'categoria', 'cor', 'data_limite_recorrencia']
+        fields = ['titulo', 'data', 'hora', 'responsavel', 'categoria', 'cor', 'data_limite_recorrencia', 'quantidade_repeticoes']
         widgets = {
             'categoria': forms.Select(attrs={'class': 'form-select'}),
             'titulo': forms.TextInput(attrs={
