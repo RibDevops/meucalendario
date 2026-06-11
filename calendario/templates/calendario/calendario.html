@@ -144,9 +144,13 @@
             </div>
             <div class="form-grupo">
               <label class="form-label">Cor do Evento</label>
-              <div class="form-color-wrapper">
-                <input type="color" name="cor" id="criar-cor" class="form-color" value="#6366f1">
-                <span class="form-color-label">Escolher cor</span>
+              <input type="hidden" name="cor" id="criar-cor" value="#6366f1">
+              <div class="color-selector" id="criar-color-selector">
+                <div class="color-option active" style="background-color: #6366f1;" data-color="#6366f1" onclick="selecionarCor(this, 'criar')"></div>
+                <div class="color-option" style="background-color: #ef4444;" data-color="#ef4444" onclick="selecionarCor(this, 'criar')"></div>
+                <div class="color-option" style="background-color: #10b981;" data-color="#10b981" onclick="selecionarCor(this, 'criar')"></div>
+                <div class="color-option" style="background-color: #f59e0b;" data-color="#f59e0b" onclick="selecionarCor(this, 'criar')"></div>
+                <div class="color-option" style="background-color: #ec4899;" data-color="#ec4899" onclick="selecionarCor(this, 'criar')"></div>
               </div>
             </div>
             <div class="form-grupo">

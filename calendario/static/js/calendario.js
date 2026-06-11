@@ -89,12 +89,25 @@ function atualizarWizardUI() {
 }
 
 function proximaEtapa() {
-    const totalEtapas = document.getElementById('criar-recorrencia').value !== 'nenhuma' ? 3 : 2;
+    const recorrencia = document.getElementById('criar-recorrencia').value;
+    const totalEtapas = recorrencia !== 'nenhuma' ? 3 : 2;
     
-    // Validação simples antes de prosseguir
+    // Validação etapa 1
     if (etapaAtual === 1) {
         if (!document.getElementById('criar-titulo').value) {
             return mostrarToast('Por favor, informe o título', 'erro');
+        }
+    }
+    
+    // Validação etapa 2
+    if (etapaAtual === 2) {
+        if (!document.getElementById('criar-data').value || !document.getElementById('criar-hora').value) {
+            return mostrarToast('Data e Hora são obrigatórias', 'erro');
+        }
+        
+        // Se não for recorrente, submeter direto
+        if (recorrencia === 'nenhuma') {
+            return submitCriar(formParaJson(document.getElementById('form-criar')));
         }
     }
     
@@ -134,6 +147,13 @@ function abrirModalCriar(dataPre, horaPre) {
     setVal('criar-hora', horaPre || '09:00');
     setVal('criar-cor', '#6366f1');
     setVal('criar-categoria', 'geral');
+    
+    // Resetar seletor de cores visual
+    const colorSelector = document.getElementById('criar-color-selector');
+    if (colorSelector) {
+        colorSelector.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+        colorSelector.querySelector('[data-color="#6366f1"]').classList.add('active');
+    }
     
     // Resetar Wizard
     etapaAtual = 1;
@@ -290,8 +310,21 @@ function confirmarExclusao() {
 }
 
 // ================================
-// FORMULÁRIOS
+// UTILITÁRIOS
 // ================================
+
+function selecionarCor(elemento, prefix) {
+    // Remover classe active de todas as opções no seletor atual
+    const selector = elemento.parentElement;
+    selector.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+    
+    // Adicionar active na opção clicada
+    elemento.classList.add('active');
+    
+    // Atualizar o valor do input hidden
+    const cor = elemento.getAttribute('data-color');
+    document.getElementById(`${prefix}-cor`).value = cor;
+}
 
 function initFormHandlers() {
     const formCriar = document.getElementById('form-criar');

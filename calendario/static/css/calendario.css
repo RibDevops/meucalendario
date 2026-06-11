@@ -488,9 +488,11 @@ body {
     /* Inputs maiores para facilitar o toque no iOS sem zoom */
     .form-input, .form-select {
         font-size: 16px !important;
-        padding: 12px 10px; /* Padding ajustado para melhor legibilidade */
+        padding: 12px 14px; /* Padding ajustado para melhor legibilidade */
         min-width: 0; /* Garante que o input possa encolher se necessário */
         width: 100%; /* Garante que o input ocupe a largura total disponível */
+        text-align: left !important; /* Força alinhamento à esquerda em todos os estados */
+        appearance: none; /* Remove estilos nativos que podem centralizar */
     }
 
     .form-label {
@@ -585,6 +587,31 @@ input[type="time"].form-input {
 .form-color-label {
     font-size: 13px;
     color: var(--text-muted);
+}
+
+/* Seletor de Cores Pré-definidas */
+.color-selector {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.color-option {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: var(--trans);
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.active {
+    border-color: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.3);
 }
 
 /* Botões de ação do modal */
@@ -843,9 +870,10 @@ input[type="time"].form-input {
 
     input[type="date"].form-input,
     input[type="time"].form-input {
-        height: 42px;
-        padding: 0 10px;
-        line-height: 42px;
+        height: 48px;
+        padding: 0 14px;
+        line-height: 48px;
+        text-align: left !important;
     }
 
     /* Ajuste fino para iPhone 15 e telas similares */
