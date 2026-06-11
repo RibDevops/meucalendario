@@ -432,6 +432,21 @@ body {
     color: var(--text);
 }
 
+/* Wizard Etapas */
+.wizard-etapa {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.wizard-etapa.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* Campos do formulário */
 .form-grupo {
     display: flex;
@@ -501,10 +516,19 @@ body {
     color: var(--text);
     font-family: inherit;
     font-size: 14px;
-    padding: 9px 12px;
+    padding: 12px 14px; /* Aumentado para melhor toque */
     transition: var(--trans);
     width: 100%;
     outline: none;
+    text-align: left; /* Garante alinhamento à esquerda padrão */
+}
+
+/* Padronização para inputs de data e hora */
+input[type="date"].form-input,
+input[type="time"].form-input {
+    text-align: left;
+    display: block;
+    min-height: 46px;
 }
 
 .form-input:focus,

@@ -97,35 +97,26 @@
 <!-- OVERLAY -->
 <div class="modal-overlay" id="modal-overlay" onclick="fecharPorOverlay(event)">
 
-  <!-- MODAL: CRIAR EVENTO -->
+  <!-- MODAL: CRIAR EVENTO (WIZARD) -->
   <div class="modal" id="modal-criar">
     <div class="modal-header">
-      <h3 class="modal-titulo">Novo evento</h3>
+      <h3 class="modal-titulo" id="modal-criar-titulo">Novo evento (1/2)</h3>
       <button class="modal-fechar" onclick="fecharModal('modal-criar')">×</button>
     </div>
+    
     <div class="modal-body">
       <form id="form-criar">
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div class="form-grupo">
-            <label class="form-label">Título *</label>
-            <input type="text" name="titulo" id="criar-titulo" class="form-input" placeholder="Ex: Reunião de planejamento" required>
-          </div>
-
-          <div class="form-grupo-row">
+        
+        <!-- ETAPA 1: Informações Básicas -->
+        <div id="etapa-1" class="wizard-etapa active">
+          <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="form-grupo">
-              <label class="form-label">Data *</label>
-              <input type="date" name="data" id="criar-data" class="form-input" required>
+              <label class="form-label">Título do Evento *</label>
+              <input type="text" name="titulo" id="criar-titulo" class="form-input" placeholder="Ex: Reunião de planejamento" required>
             </div>
-            <div class="form-grupo">
-              <label class="form-label">Hora *</label>
-              <input type="time" name="hora" id="criar-hora" class="form-input" required>
-            </div>
-          </div>
-
-          <div class="form-grupo-row">
             <div class="form-grupo">
               <label class="form-label">Responsável</label>
-              <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Responsável">
+              <input type="text" name="responsavel" id="criar-responsavel" class="form-input" placeholder="Nome do responsável">
             </div>
             <div class="form-grupo">
               <label class="form-label">Categoria</label>
@@ -138,18 +129,29 @@
               </select>
             </div>
           </div>
+        </div>
 
-          <div class="form-grupo-row">
+        <!-- ETAPA 2: Data, Hora, Cor e Repetir -->
+        <div id="etapa-2" class="wizard-etapa">
+          <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="form-grupo">
-              <label class="form-label">Cor</label>
+              <label class="form-label">Data *</label>
+              <input type="date" name="data" id="criar-data" class="form-input" required>
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Hora *</label>
+              <input type="time" name="hora" id="criar-hora" class="form-input" required>
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Cor do Evento</label>
               <div class="form-color-wrapper">
                 <input type="color" name="cor" id="criar-cor" class="form-color" value="#6366f1">
-                <span class="form-color-label">Cor</span>
+                <span class="form-color-label">Escolher cor</span>
               </div>
             </div>
             <div class="form-grupo">
-              <label class="form-label">Repetir</label>
-              <select name="recorrencia" id="criar-recorrencia" class="form-select" onchange="toggleDataLimite('criar')" style="width: 100%;">
+              <label class="form-label">Repetir Evento</label>
+              <select name="recorrencia" id="criar-recorrencia" class="form-select" onchange="toggleDataLimite('criar')">
                 <option value="nenhuma">Não repetir</option>
                 <option value="semanal">Semanalmente</option>
                 <option value="mensal">Mensalmente</option>
@@ -157,24 +159,30 @@
               </select>
             </div>
           </div>
+        </div>
 
-          <div class="form-grupo-row" id="grupo-quantidade-repeticoes-criar" style="display:none; margin-top: 8px;">
-            <div class="form-grupo">
-              <label class="form-label" style="color: #818cf8;">Quantidade de Repetições *</label>
+        <!-- ETAPA 3: Detalhes da Repetição (Opcional) -->
+        <div id="etapa-3" class="wizard-etapa">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-grupo" id="grupo-quantidade-repeticoes-criar">
+              <label class="form-label" style="color: #818cf8;">Quantidade de Repetições</label>
               <input type="number" name="quantidade_repeticoes" id="criar-quantidade-repeticoes" class="form-input" min="1" value="1" style="border-color: #818cf8;">
             </div>
-          </div>
-
-          <div class="form-grupo" id="grupo-data-limite-criar" style="display:none; margin-top: 8px;">
-            <label class="form-label" style="color: #818cf8;">Repetir até (Data Final) *</label>
-            <input type="date" name="data_limite_recorrencia" id="criar-data-limite" class="form-input" style="border-color: #818cf8;">
+            <div class="form-grupo" id="grupo-data-limite-criar">
+              <label class="form-label" style="color: #818cf8;">Ou Repetir até (Data Final)</label>
+              <input type="date" name="data_limite_recorrencia" id="criar-data-limite" class="form-input" style="border-color: #818cf8;">
+            </div>
           </div>
         </div>
+
       </form>
     </div>
+
     <div class="modal-acoes">
-      <button class="btn btn-secundario" onclick="fecharModal('modal-criar')">Cancelar</button>
-      <button class="btn btn-primario" onclick="submitCriar(formParaJson(document.getElementById('form-criar')))">Criar evento</button>
+      <button class="btn btn-secundario" id="btn-voltar" onclick="voltarEtapa()" style="display:none;">Voltar</button>
+      <button class="btn btn-secundario" id="btn-cancelar" onclick="fecharModal('modal-criar')">Cancelar</button>
+      <button class="btn btn-primario" id="btn-proximo" onclick="proximaEtapa()">Próximo</button>
+      <button class="btn btn-primario" id="btn-criar" onclick="submitCriar(formParaJson(document.getElementById('form-criar')))" style="display:none;">Criar evento</button>
     </div>
   </div>
 

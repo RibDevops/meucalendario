@@ -58,8 +58,58 @@ function fecharPorOverlay(e) {
 }
 
 // ================================
-// CRIAR
+// CRIAR (WIZARD)
 // ================================
+
+let etapaAtual = 1;
+
+function atualizarWizardUI() {
+    const totalEtapas = document.getElementById('criar-recorrencia').value !== 'nenhuma' ? 3 : 2;
+    
+    // Esconder todas as etapas
+    document.querySelectorAll('.wizard-etapa').forEach(el => el.classList.remove('active'));
+    
+    // Mostrar etapa atual
+    document.getElementById(`etapa-${etapaAtual}`).classList.add('active');
+    
+    // Atualizar título
+    document.getElementById('modal-criar-titulo').textContent = `Novo evento (${etapaAtual}/${totalEtapas})`;
+    
+    // Controle de botões
+    document.getElementById('btn-voltar').style.display = etapaAtual > 1 ? 'block' : 'none';
+    document.getElementById('btn-cancelar').style.display = etapaAtual === 1 ? 'block' : 'none';
+    
+    if (etapaAtual === totalEtapas) {
+        document.getElementById('btn-proximo').style.display = 'none';
+        document.getElementById('btn-criar').style.display = 'block';
+    } else {
+        document.getElementById('btn-proximo').style.display = 'block';
+        document.getElementById('btn-criar').style.display = 'none';
+    }
+}
+
+function proximaEtapa() {
+    const totalEtapas = document.getElementById('criar-recorrencia').value !== 'nenhuma' ? 3 : 2;
+    
+    // Validação simples antes de prosseguir
+    if (etapaAtual === 1) {
+        if (!document.getElementById('criar-titulo').value) {
+            return mostrarToast('Por favor, informe o título', 'erro');
+        }
+    }
+    
+    if (etapaAtual < totalEtapas) {
+        etapaAtual++;
+        atualizarWizardUI();
+    }
+}
+
+function voltarEtapa() {
+    if (etapaAtual > 1) {
+        etapaAtual--;
+        atualizarWizardUI();
+    }
+}
 
 function toggleDataLimite(prefix) {
     const select = document.getElementById(`${prefix}-recorrencia`);
@@ -85,11 +135,12 @@ function abrirModalCriar(dataPre, horaPre) {
     setVal('criar-cor', '#6366f1');
     setVal('criar-categoria', 'geral');
     
-    // Forçar a exibição correta da data limite ao abrir
+    // Resetar Wizard
+    etapaAtual = 1;
     const recorrenciaSelect = document.getElementById('criar-recorrencia');
     if (recorrenciaSelect) recorrenciaSelect.value = 'nenhuma';
-    toggleDataLimite('criar');
     
+    atualizarWizardUI();
     abrirModal('modal-criar');
 }
 
