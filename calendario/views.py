@@ -148,7 +148,7 @@ def evento_criar(request):
                 n = 1
                 while True:
                     # Se tiver quantidade, para quando atingir o limite de repetições
-                    if quantidade_repeticoes and n >= quantidade_repeticoes:
+                    if quantidade_repeticoes and n > quantidade_repeticoes:
                         break
                     
                     nova_dt = _proxima_data(evento.data_inicio, recorrencia, n)
