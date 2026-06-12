@@ -131,36 +131,7 @@ function abrirModalCriar(dataPre, horaPre) {
 }
 
 function submitCriar(formData) {
-    if (formData.recorrencia && formData.recorrencia !== 'nenhuma') {
-        // Guarda os dados e abre modal de recorrência
-        _dadosEventoPendente = formData;
-        fecharModal('modal-criar');
-        setTimeout(() => {
-            setVal('rec-quantidade', '');
-            setVal('rec-data-limite', '');
-            abrirModal('modal-recorrencia');
-        }, 150);
-    } else {
-        _enviarCriar(formData);
-    }
-}
-
-function confirmarRecorrencia() {
-    if (!_dadosEventoPendente) return;
-    const quantidade = document.getElementById('rec-quantidade').value;
-    const dataLimite = document.getElementById('rec-data-limite').value;
-
-    if (!quantidade && !dataLimite) {
-        return mostrarToast('Informe a quantidade ou a data final', 'erro');
-    }
-
-    const dados = Object.assign({}, _dadosEventoPendente);
-    if (quantidade) dados.quantidade_repeticoes = quantidade;
-    if (dataLimite) dados.data_limite_recorrencia = dataLimite;
-
-    _dadosEventoPendente = null;
-    fecharModal('modal-recorrencia');
-    _enviarCriar(dados);
+    _enviarCriar(formData);
 }
 
 function _enviarCriar(formData) {
