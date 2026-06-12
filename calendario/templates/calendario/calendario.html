@@ -155,26 +155,12 @@
             </div>
             <div class="form-grupo">
               <label class="form-label">Repetir Evento</label>
-              <select name="recorrencia" id="criar-recorrencia" class="form-select" onchange="toggleDataLimite('criar')">
+              <select name="recorrencia" id="criar-recorrencia" class="form-select">
                 <option value="nenhuma">Não repetir</option>
                 <option value="semanal">Semanalmente</option>
                 <option value="mensal">Mensalmente</option>
                 <option value="anual">Anualmente</option>
               </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- ETAPA 3: Detalhes da Repetição (Opcional) -->
-        <div id="etapa-3" class="wizard-etapa">
-          <div style="display:flex;flex-direction:column;gap:16px;">
-            <div class="form-grupo" id="grupo-quantidade-repeticoes-criar">
-              <label class="form-label" style="color: #818cf8;">Quantidade de Repetições</label>
-              <input type="number" name="quantidade_repeticoes" id="criar-quantidade-repeticoes" class="form-input" min="1" placeholder="Ex: 4" style="border-color: #818cf8;">
-            </div>
-            <div class="form-grupo" id="grupo-data-limite-criar">
-              <label class="form-label" style="color: #818cf8;">Ou Repetir até (Data Final)</label>
-              <input type="date" name="data_limite_recorrencia" id="criar-data-limite" class="form-input" style="border-color: #818cf8;">
             </div>
           </div>
         </div>
@@ -187,6 +173,31 @@
       <button type="button" class="btn btn-secundario" id="btn-cancelar" onclick="fecharModal('modal-criar')">Cancelar</button>
       <button type="button" class="btn btn-primario" id="btn-proximo" onclick="proximaEtapa()">Próximo</button>
       <button type="button" class="btn btn-primario" id="btn-criar" onclick="submitCriar(formParaJson(document.getElementById('form-criar')))" style="display:none;">Criar evento</button>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHES DA RECORRÊNCIA -->
+  <div class="modal" id="modal-recorrencia">
+    <div class="modal-header">
+      <h3 class="modal-titulo">Configurar Repetição</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-recorrencia')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.5;">Defina até quando o evento deve se repetir. Preencha <strong style="color:var(--text);">uma</strong> das opções abaixo:</p>
+        <div class="form-grupo">
+          <label class="form-label" style="color:#818cf8;">Quantidade de Repetições</label>
+          <input type="number" id="rec-quantidade" class="form-input" min="1" placeholder="Ex: 4" style="border-color:#818cf8;">
+        </div>
+        <div class="form-grupo">
+          <label class="form-label" style="color:#818cf8;">Ou Repetir até (Data Final)</label>
+          <input type="date" id="rec-data-limite" class="form-input" style="border-color:#818cf8;">
+        </div>
+      </div>
+    </div>
+    <div class="modal-acoes">
+      <button type="button" class="btn btn-secundario" onclick="fecharModal('modal-recorrencia')">Cancelar</button>
+      <button type="button" class="btn btn-primario" onclick="confirmarRecorrencia()">Confirmar</button>
     </div>
   </div>
 
