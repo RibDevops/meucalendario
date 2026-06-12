@@ -331,7 +331,10 @@ function initFormHandlers() {
     if (formCriar) {
         formCriar.addEventListener('submit', function (e) {
             e.preventDefault();
-            submitCriar(formParaJson(this));
+            const totalEtapas = document.getElementById('criar-recorrencia').value !== 'nenhuma' ? 3 : 2;
+            if (etapaAtual >= totalEtapas) {
+                submitCriar(formParaJson(this));
+            }
         });
     }
 
