@@ -1,4 +1,4 @@
-const CACHE = 'core-v8';
+const CACHE = 'core-v9';
 const ASSETS = [
     '/',
     '/static/css/calendario.css',

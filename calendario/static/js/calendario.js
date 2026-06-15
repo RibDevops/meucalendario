@@ -65,10 +65,14 @@ let etapaAtual = 1;
 let _dadosEventoPendente = null;
 
 function atualizarWizardUI() {
-    const totalEtapas = 2;
+    const recorrencia = document.getElementById('criar-recorrencia').value;
+    const temEtapa3 = (recorrencia && recorrencia !== 'nenhuma');
+    const totalEtapas = temEtapa3 ? 3 : 2;
 
     document.querySelectorAll('.wizard-etapa').forEach(el => el.classList.remove('active'));
-    document.getElementById(`etapa-${etapaAtual}`).classList.add('active');
+    const etapaEl = document.getElementById(`etapa-${etapaAtual}`);
+    if (etapaEl) etapaEl.classList.add('active');
+    
     document.getElementById('modal-criar-titulo').textContent = `Novo evento (${etapaAtual}/${totalEtapas})`;
 
     document.getElementById('btn-voltar').style.display = etapaAtual > 1 ? 'block' : 'none';
@@ -97,6 +101,18 @@ function proximaEtapa() {
         if (!document.getElementById('criar-data').value || !document.getElementById('criar-hora').value) {
             return mostrarToast('Data e Hora são obrigatórias', 'erro');
         }
+        
+        const recorrencia = document.getElementById('criar-recorrencia').value;
+        if (recorrencia && recorrencia !== 'nenhuma') {
+            etapaAtual = 3;
+            atualizarWizardUI();
+        } else {
+            submitCriar(formParaJson(document.getElementById('form-criar')));
+        }
+        return;
+    }
+    
+    if (etapaAtual === 3) {
         submitCriar(formParaJson(document.getElementById('form-criar')));
     }
 }
