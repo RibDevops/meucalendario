@@ -78,12 +78,15 @@ function atualizarWizardUI() {
     document.getElementById('btn-voltar').style.display = etapaAtual > 1 ? 'block' : 'none';
     document.getElementById('btn-cancelar').style.display = etapaAtual === 1 ? 'block' : 'none';
 
-    if (etapaAtual === totalEtapas) {
-        document.getElementById('btn-proximo').style.display = 'none';
-        document.getElementById('btn-criar').style.display = 'block';
+    const btnProximo = document.getElementById('btn-proximo');
+    const btnCriar = document.getElementById('btn-criar');
+
+    if (etapaAtual < totalEtapas) {
+        btnProximo.style.setProperty('display', 'block', 'important');
+        btnCriar.style.setProperty('display', 'none', 'important');
     } else {
-        document.getElementById('btn-proximo').style.display = 'block';
-        document.getElementById('btn-criar').style.display = 'none';
+        btnProximo.style.setProperty('display', 'none', 'important');
+        btnCriar.style.setProperty('display', 'block', 'important');
     }
 }
 
