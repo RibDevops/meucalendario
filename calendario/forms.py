@@ -32,8 +32,9 @@ class EventoForm(forms.ModelForm):
 
     class Meta:
         model = Evento
-        fields = ['titulo', 'data', 'hora', 'responsavel', 'categoria', 'cor', 'data_limite_recorrencia', 'quantidade_repeticoes']
+        fields = ['titulo', 'data', 'hora', 'compartilhado', 'responsavel', 'categoria', 'cor', 'data_limite_recorrencia', 'quantidade_repeticoes']
         widgets = {
+            'compartilhado': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
             'categoria': forms.Select(attrs={'class': 'form-select'}),
             'titulo': forms.TextInput(attrs={
                 'class': 'form-input',

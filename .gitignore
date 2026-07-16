@@ -18,6 +18,8 @@ media/
 venv/
 env/
 .env
+.env.*
+!.env.example
 
 # Sistema operacional
 .DS_Store

@@ -229,6 +229,8 @@ function abrirModalEditar(id) {
         setVal('editar-responsavel', ev.responsavel || '');
         setVal('editar-categoria',   ev.categoria || 'geral');
         setVal('editar-cor',         ev.cor || '#6366f1');
+        const compartilhar = document.getElementById('editar-compartilhado');
+        if (compartilhar) compartilhar.checked = Boolean(ev.compartilhado);
         
         const opcoesSerie = document.getElementById('opcoes-serie');
         if (ev.serie_id && opcoesSerie) {

@@ -20,6 +20,7 @@ def favicon(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path('sw.js', service_worker, name='service_worker'),
     path('favicon.ico', favicon, name='favicon'),
     path('', include('calendario.urls')),

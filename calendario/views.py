@@ -1,24 +1,37 @@
 import calendar
 import json
+import logging
 import uuid
 from datetime import date, datetime, timedelta
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
+from django.db import transaction
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
 from .models import Evento
 from .forms import EventoForm
+from .google_calendar import GoogleCalendarError, criar_evento
+
+logger = logging.getLogger(__name__)
 
 
+def _eventos_visiveis(user):
+    return Evento.objects.filter(Q(compartilhado=True) | Q(criador=user))
+
+
+@login_required
 def calendario_view(request):
     hoje = timezone.now().date()
 
     try:
         ano = int(request.GET.get('ano', hoje.year))
         mes = int(request.GET.get('mes', hoje.month))
+        if not 1 <= mes <= 12 or not 1900 <= ano <= 2100:
+            raise ValueError
     except (ValueError, TypeError):
         ano = hoje.year
         mes = hoje.month
@@ -52,7 +65,7 @@ def calendario_view(request):
 
     primeiro_dia = date(ano, mes, 1)
     ultimo_dia = date(ano, mes, calendar.monthrange(ano, mes)[1])
-    eventos_mes = Evento.objects.filter(
+    eventos_mes = _eventos_visiveis(request.user).filter(
         data_inicio__date__gte=primeiro_dia,
         data_inicio__date__lte=ultimo_dia
     ).order_by('data_inicio')
@@ -64,7 +77,7 @@ def calendario_view(request):
             eventos_por_dia[d] = []
         eventos_por_dia[d].append(evento)
 
-    eventos_dia = Evento.objects.filter(
+    eventos_dia = _eventos_visiveis(request.user).filter(
         data_inicio__date=data_selecionada
     ).order_by('data_inicio')
 
@@ -112,8 +125,9 @@ def _proxima_data(dt, recorrencia, n):
     return None
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
+@transaction.atomic
+@login_required
 def evento_criar(request):
     try:
         if request.content_type == 'application/json':
@@ -134,6 +148,7 @@ def evento_criar(request):
 
         if form.is_valid():
             evento = form.save(commit=False)
+            evento.criador = request.user
             if recorrencia != 'nenhuma':
                 evento.serie_id = str(uuid.uuid4())
             evento.save()
@@ -165,8 +180,10 @@ def evento_criar(request):
                         if n >= 12 and recorrencia == 'mensal': break
                         if n >= 10 and recorrencia == 'anual': break
 
-                    Evento.objects.create(
+                    repeticao = Evento.objects.create(
                         titulo=evento.titulo,
+                        criador=request.user,
+                        compartilhado=evento.compartilhado,
                         data_inicio=nova_dt,
                         responsavel=evento.responsavel,
                         categoria=evento.categoria,
@@ -174,7 +191,10 @@ def evento_criar(request):
                         serie_id=evento.serie_id,
                         data_limite_recorrencia=data_limite
                     )
+                    criar_evento(repeticao, request.user)
                     n += 1
+
+            criar_evento(evento, request.user)
 
             msgs = {
                 'semanal': f'Evento criado com recorrência semanal!',
@@ -195,15 +215,19 @@ def evento_criar(request):
 
     except json.JSONDecodeError:
         return JsonResponse({'sucesso': False, 'mensagem': 'JSON inválido'}, status=400)
-    except Exception as e:
-        return JsonResponse({'sucesso': False, 'mensagem': str(e)}, status=500)
+    except GoogleCalendarError as exc:
+        return JsonResponse({'sucesso': False, 'mensagem': str(exc)}, status=502)
+    except Exception:
+        logger.exception('Erro inesperado ao criar evento')
+        return JsonResponse({'sucesso': False, 'mensagem': 'Erro interno ao criar evento'}, status=500)
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
+@transaction.atomic
+@login_required
 def evento_editar(request, pk):
     try:
-        evento = get_object_or_404(Evento, pk=pk)
+        evento = get_object_or_404(_eventos_visiveis(request.user), pk=pk)
         
         if request.content_type == 'application/json':
             dados = json.loads(request.body)
@@ -243,15 +267,17 @@ def evento_editar(request, pk):
 
     except json.JSONDecodeError:
         return JsonResponse({'sucesso': False, 'mensagem': 'JSON inválido'}, status=400)
-    except Exception as e:
-        return JsonResponse({'sucesso': False, 'mensagem': str(e)}, status=500)
+    except Exception:
+        logger.exception('Erro inesperado ao editar evento %s', pk)
+        return JsonResponse({'sucesso': False, 'mensagem': 'Erro interno ao editar evento'}, status=500)
 
 
-@csrf_exempt
 @require_http_methods(["POST", "DELETE"])
+@transaction.atomic
+@login_required
 def evento_excluir(request, pk):
     try:
-        evento = get_object_or_404(Evento, pk=pk)
+        evento = get_object_or_404(_eventos_visiveis(request.user), pk=pk)
         titulo = evento.titulo
         
         excluir_serie = request.GET.get('excluir_serie') == 'true'
@@ -260,7 +286,7 @@ def evento_excluir(request, pk):
                 if request.content_type == 'application/json':
                     dados = json.loads(request.body)
                     excluir_serie = dados.get('excluir_serie') == 'true'
-            except:
+            except (json.JSONDecodeError, UnicodeDecodeError):
                 pass
 
         if excluir_serie and evento.serie_id:
@@ -270,22 +296,26 @@ def evento_excluir(request, pk):
         
         evento.delete()
         return JsonResponse({'sucesso': True, 'mensagem': f'Evento "{titulo}" excluído!'})
-    except Exception as e:
-        return JsonResponse({'sucesso': False, 'mensagem': str(e)}, status=500)
+    except Exception:
+        logger.exception('Erro inesperado ao excluir evento %s', pk)
+        return JsonResponse({'sucesso': False, 'mensagem': 'Erro interno ao excluir evento'}, status=500)
 
 
+@login_required
 def evento_detalhes(request, pk):
     try:
-        evento = get_object_or_404(Evento, pk=pk)
+        evento = get_object_or_404(_eventos_visiveis(request.user), pk=pk)
         return JsonResponse({'sucesso': True, 'evento': _serializar(evento)})
-    except Exception as e:
-        return JsonResponse({'sucesso': False, 'mensagem': str(e)}, status=500)
+    except Exception:
+        logger.exception('Erro inesperado ao consultar evento %s', pk)
+        return JsonResponse({'sucesso': False, 'mensagem': 'Erro interno ao consultar evento'}, status=500)
 
 
 def _serializar(evento):
     return {
         'id': evento.id,
         'titulo': evento.titulo,
+        'compartilhado': evento.compartilhado,
         'data': evento.data_inicio.strftime('%Y-%m-%d'),
         'hora': evento.data_inicio.strftime('%H:%M'),
         'responsavel': evento.responsavel,

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
 
 
@@ -12,6 +13,15 @@ class Evento(models.Model):
     ]
 
     titulo = models.CharField(max_length=200, verbose_name='Título')
+    criador = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='eventos',
+        null=True,
+        blank=True,
+        verbose_name='Criador',
+    )
+    compartilhado = models.BooleanField(default=True, verbose_name='Compartilhar')
     data_inicio = models.DateTimeField(verbose_name='Data e Hora')
     responsavel = models.CharField(max_length=100, blank=True, verbose_name='Responsável')
     categoria = models.CharField(max_length=20, choices=CATEGORIAS, default='geral', verbose_name='Categoria')
@@ -23,6 +33,8 @@ class Evento(models.Model):
     )
     serie_id = models.CharField(max_length=100, blank=True, null=True, verbose_name='ID da Série')
     data_limite_recorrencia = models.DateField(blank=True, null=True, verbose_name='Repetir até')
+    google_event_id = models.CharField(max_length=255, blank=True, verbose_name='ID no Google Calendar')
+    google_calendar_id = models.CharField(max_length=255, blank=True, verbose_name='Calendário Google')
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
