@@ -26,14 +26,14 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-development-only-ch
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = env_list(
-    'DJANGO_ALLOWED_HOSTS',
-    '127.0.0.1,localhost,agenda.pythonanywhere.com',
+ALLOWED_HOSTS = sorted(
+    set(env_list('DJANGO_ALLOWED_HOSTS'))
+    | {'127.0.0.1', 'localhost', 'agenda.pythonanywhere.com'}
 )
 
-CSRF_TRUSTED_ORIGINS = env_list(
-    'DJANGO_CSRF_TRUSTED_ORIGINS',
-    'https://agenda.pythonanywhere.com' if not DEBUG else '',
+CSRF_TRUSTED_ORIGINS = sorted(
+    set(env_list('DJANGO_CSRF_TRUSTED_ORIGINS'))
+    | {'https://agenda.pythonanywhere.com'}
 )
 
 INSTALLED_APPS = [
