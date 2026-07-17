@@ -107,7 +107,9 @@ def excluir_evento(evento, user):
             eventId=evento.google_event_id,
         ).execute()
     except HttpError as exc:
-        if exc.resp.status == 404:
+        # 404: não encontrado. 410: evento excluído e mantido como cancelado
+        # pelo Google. Nos dois casos, não há mais nada para remover remotamente.
+        if exc.resp.status in {404, 410}:
             return
         if exc.resp.status == 403:
             raise GoogleCalendarError(

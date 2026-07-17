@@ -1,9 +1,13 @@
 from datetime import date, datetime
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from googleapiclient.errors import HttpError
 
+from .google_calendar import excluir_evento
 from .models import Evento
 from .views import _proxima_data
 
@@ -52,3 +56,26 @@ class EventoEndpointTests(TestCase):
         resposta = self.client.get(reverse('evento_detalhes', args=[evento.pk]))
         self.assertEqual(resposta.status_code, 200)
         self.assertEqual(resposta.json()['evento']['titulo'], 'Consulta')
+
+
+class GoogleCalendarExclusaoTests(TestCase):
+    @override_settings(GOOGLE_CALENDAR_SYNC_ENABLED=True)
+    @patch('calendario.google_calendar._credentials_for')
+    @patch('calendario.google_calendar.build')
+    def test_evento_ausente_no_google_permite_exclusao_local(
+        self, build_mock, credentials_mock
+    ):
+        evento = SimpleNamespace(
+            google_event_id='evento-google',
+            google_calendar_id='agenda@group.calendar.google.com',
+            compartilhado=True,
+        )
+
+        for status in (404, 410):
+            with self.subTest(status=status):
+                response = Mock(status=status, reason='Gone')
+                build_mock.return_value.events.return_value.delete.return_value.execute.side_effect = (
+                    HttpError(response, b'{"error": "gone"}')
+                )
+
+                self.assertIsNone(excluir_evento(evento, Mock()))
