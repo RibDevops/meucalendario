@@ -1,0 +1,83 @@
+Importante: editar .env.example não configura o servidor. Ele é apenas um modelo. No PythonAnywhere, coloque as variáveis no arquivo WSGI.
+1. Criar o projeto no Google Cloud
+Acesse o Google Cloud Console conectado como andernet@gmail.com.
+No seletor superior, clique em Novo projeto.
+Nome sugerido: Agenda da Família.
+Selecione o projeto criado.
+2. Ativar a Google Calendar API
+Abra APIs e serviços → Biblioteca.
+Procure Google Calendar API.
+Clique em Ativar.
+Esse passo é obrigatório para criar eventos pela API. Documentação oficial
+3. Configurar a tela de consentimento
+Abra Google Auth Platform → Branding.
+Configure:
+Nome do aplicativo: Agenda da Família
+E-mail de suporte: andernet@gmail.com
+E-mail de contato: andernet@gmail.com
+Público/Audience: External/Externo
+Como são contas Gmail pessoais, não use “Internal”.
+Em Audience → Test users, adicione:
+andernet@gmail.com
+eo.nathaliamaro@gmail.com
+Enquanto o aplicativo estiver em modo de teste, somente essas contas poderão autorizar o acesso.
+Em Data Access/Scopes, adicione:
+openid
+email
+profile
+https://www.googleapis.com/auth/calendar
+O último escopo permite criar e administrar eventos. Escopos do Calendar
+4. Criar Client ID e Client Secret
+Abra Google Auth Platform → Clients:
+Clique em Create Client.
+Tipo: Web application.
+Nome: Agenda PythonAnywhere.
+Em Authorized JavaScript origins, adicione, sem barra no final:
+https://agenda.pythonanywhere.com
+Em Authorized redirect URIs, adicione exatamente, incluindo a barra final:
+https://agenda.pythonanywhere.com/accounts/google/login/callback/
+Clique em Create. O Google mostrará:
+Client ID, semelhante a 123...apps.googleusercontent.com
+Client Secret
+A criação dessas credenciais é descrita na documentação oficial do Google.
+5. Criar a Agenda da Família
+No computador, abra o Google Calendar usando andernet@gmail.com.
+Ao lado de Outras agendas, clique em +.
+Selecione Criar nova agenda.
+Nome: Agenda da Família.
+Abra Configurações e compartilhamento dessa agenda.
+Em Compartilhar com pessoas específicas, adicione:
+eo.nathaliamaro@gmail.com
+Conceda permissão para fazer alterações nos eventos.
+Acesse Integrar agenda.
+Copie o campo ID da agenda.
+O ID pode parecer com:
+abc123def456@group.calendar.google.com
+Não copie o endereço iCal. Precisamos especificamente do campo ID da agenda. Localização oficial do Calendar ID
+6. Configurar no PythonAnywhere
+Abra o arquivo:
+/var/www/agenda_pythonanywhere_com_wsgi.py
+Antes desta linha:
+application = get_wsgi_application()
+adicione:
+import os
+
+os.environ["GOOGLE_OAUTH_CLIENT_ID"] = "COLE_O_CLIENT_ID"
+os.environ["GOOGLE_OAUTH_CLIENT_SECRET"] = "COLE_O_CLIENT_SECRET"
+os.environ["GOOGLE_FAMILY_CALENDAR_ID"] = "COLE_O_ID_DA_AGENDA"
+os.environ["GOOGLE_CALENDAR_SYNC_ENABLED"] = "True"
+
+os.environ["AGENDA_OWNER_EMAIL"] = "andernet@gmail.com"
+os.environ["AGENDA_ALLOWED_EMAILS"] = (
+    "andernet@gmail.com,eo.nathaliamaro@gmail.com"
+)
+Mantenha também as variáveis anteriores:
+os.environ["DJANGO_DEBUG"] = "False"
+os.environ["DJANGO_ALLOWED_HOSTS"] = "agenda.pythonanywhere.com"
+os.environ["DJANGO_CSRF_TRUSTED_ORIGINS"] = (
+    "https://agenda.pythonanywhere.com"
+)
+os.environ["DJANGO_SECRET_KEY"] = "SUA-CHAVE-LONGA-E-ALEATORIA"
+Salve e clique em Reload na aba Web.
+Não coloque o Client Secret no .env.example, no GitHub ou em mensagens. Ele deve ficar somente no servidor. Se depois disso aparecer redirect_uri_mismatch, confira se o callback cadastrado é exatamente:
+https://agenda.pythonanywhere.com/accounts/google/login/callback/
