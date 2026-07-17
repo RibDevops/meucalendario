@@ -16,6 +16,8 @@ media/
 
 # Ambiente virtual
 venv/
+.venv
+.venv/
 env/
 .env
 .env.*
@@ -29,3 +31,4 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+client_secret_*.json

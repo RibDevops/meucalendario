@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Evento
 from datetime import datetime
 
@@ -67,7 +68,11 @@ class EventoForm(forms.ModelForm):
         data = cleaned_data.get('data')
         hora = cleaned_data.get('hora')
         if data and hora:
-            cleaned_data['data_inicio'] = datetime.combine(data, hora)
+            data_inicio = datetime.combine(data, hora)
+            cleaned_data['data_inicio'] = timezone.make_aware(
+                data_inicio,
+                timezone.get_current_timezone(),
+            )
         return cleaned_data
 
     def save(self, commit=True):

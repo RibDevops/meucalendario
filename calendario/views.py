@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from .models import Evento
 from .forms import EventoForm
-from .google_calendar import GoogleCalendarError, criar_evento
+from .google_calendar import GoogleCalendarError, criar_evento, excluir_evento
 
 logger = logging.getLogger(__name__)
 
@@ -290,12 +290,18 @@ def evento_excluir(request, pk):
                 pass
 
         if excluir_serie and evento.serie_id:
-            count = Evento.objects.filter(serie_id=evento.serie_id).count()
-            Evento.objects.filter(serie_id=evento.serie_id).delete()
+            eventos_serie = list(Evento.objects.filter(serie_id=evento.serie_id))
+            count = len(eventos_serie)
+            for item in eventos_serie:
+                excluir_evento(item, request.user)
+            Evento.objects.filter(pk__in=[item.pk for item in eventos_serie]).delete()
             return JsonResponse({'sucesso': True, 'mensagem': f'Série com {count} eventos excluída!'})
         
+        excluir_evento(evento, request.user)
         evento.delete()
         return JsonResponse({'sucesso': True, 'mensagem': f'Evento "{titulo}" excluído!'})
+    except GoogleCalendarError as exc:
+        return JsonResponse({'sucesso': False, 'mensagem': str(exc)}, status=502)
     except Exception:
         logger.exception('Erro inesperado ao excluir evento %s', pk)
         return JsonResponse({'sucesso': False, 'mensagem': 'Erro interno ao excluir evento'}, status=500)

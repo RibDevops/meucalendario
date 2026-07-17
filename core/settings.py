@@ -5,7 +5,12 @@ Django settings for core project.
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carrega as variaveis locais sem sobrescrever as definidas pelo servidor.
+load_dotenv(BASE_DIR / '.env')
 
 def env_bool(name, default=False):
     return os.getenv(name, str(default)).lower() in {'1', 'true', 'yes', 'on'}
@@ -61,7 +66,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,6 +143,10 @@ ACCOUNT_SIGNUP_FIELDS = ['email*']
 SOCIALACCOUNT_ONLY = True
 SOCIALACCOUNT_LOGIN_ON_GET = False
 SOCIALACCOUNT_STORE_TOKENS = True
+# O Google valida o e-mail e o adaptador limita o acesso à lista de convidados.
+# Assim, uma conta OAuth removida pode ser ligada novamente ao usuário existente.
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_ADAPTER = 'calendario.adapters.AgendaSocialAccountAdapter'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

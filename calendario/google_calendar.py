@@ -6,6 +6,7 @@ from django.utils import timezone
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 
 class GoogleCalendarError(Exception):
@@ -68,8 +69,48 @@ def criar_evento(evento, user):
         },
     }
     service = build('calendar', 'v3', credentials=_credentials_for(user), cache_discovery=False)
-    resultado = service.events().insert(calendarId=calendar_id, body=body).execute()
+    try:
+        resultado = service.events().insert(calendarId=calendar_id, body=body).execute()
+    except HttpError as exc:
+        if exc.resp.status == 403 and b'insufficient' in exc.content.lower():
+            raise GoogleCalendarError(
+                'O Google não concedeu acesso à agenda. Saia, reconecte a conta '
+                'e autorize explicitamente o Google Calendar.'
+            ) from exc
+        if exc.resp.status == 404:
+            raise GoogleCalendarError(
+                'A Agenda da Família não foi encontrada ou não foi compartilhada '
+                'com esta conta Google.'
+            ) from exc
+        raise GoogleCalendarError('Não foi possível criar o evento no Google Calendar.') from exc
     evento.google_event_id = resultado['id']
     evento.google_calendar_id = calendar_id
     evento.save(update_fields=['google_event_id', 'google_calendar_id'])
     return evento
+
+
+def excluir_evento(evento, user):
+    """Exclui no Google o evento que já foi sincronizado."""
+    if not settings.GOOGLE_CALENDAR_SYNC_ENABLED or not evento.google_event_id:
+        return
+
+    calendar_id = evento.google_calendar_id or (
+        settings.GOOGLE_FAMILY_CALENDAR_ID if evento.compartilhado else 'primary'
+    )
+    if not calendar_id:
+        raise GoogleCalendarError('O calendário Google do evento não foi configurado.')
+
+    service = build('calendar', 'v3', credentials=_credentials_for(user), cache_discovery=False)
+    try:
+        service.events().delete(
+            calendarId=calendar_id,
+            eventId=evento.google_event_id,
+        ).execute()
+    except HttpError as exc:
+        if exc.resp.status == 404:
+            return
+        if exc.resp.status == 403:
+            raise GoogleCalendarError(
+                'Sua conta não tem permissão para excluir este evento no Google Calendar.'
+            ) from exc
+        raise GoogleCalendarError('Não foi possível excluir o evento no Google Calendar.') from exc

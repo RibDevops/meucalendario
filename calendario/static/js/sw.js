@@ -1,4 +1,4 @@
-const CACHE = 'core-v11';
+const CACHE = 'core-v12';
 const ASSETS = [
     '/',
     '/static/css/calendario.css',
@@ -25,7 +25,13 @@ self.addEventListener('fetch', e => {
     const url = new URL(e.request.url);
 
     // Network-first para páginas dinâmicas Django
-    if (url.pathname === '/' || url.pathname.startsWith('/evento')) {
+    if (url.origin === self.location.origin && url.pathname.startsWith('/accounts/')) {
+        e.respondWith(fetch(e.request));
+        return;
+    }
+
+    if (url.origin === self.location.origin &&
+        (url.pathname === '/' || url.pathname.startsWith('/evento'))) {
         e.respondWith(
             fetch(e.request).catch(() => caches.match(e.request))
         );
@@ -33,6 +39,10 @@ self.addEventListener('fetch', e => {
     }
 
     // Cache-first para assets estáticos
+    if (url.origin !== self.location.origin || !url.pathname.startsWith('/static/')) {
+        return;
+    }
+
     e.respondWith(
         caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
             const clone = res.clone();
